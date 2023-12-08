@@ -124,6 +124,33 @@ Data %>%
   theme_bw(base_size = 12)
 ```
 
+```{r, warning=F}
+Data %>%
+  filter(Year==2023,
+         Taxa %in% c("Picea abies", "Sorbus aucuparia"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass))+
+  geom_violin(alpha=0.8,
+              fill="grey30")+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Taxa)
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Sorbus aucuparia"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
 ```{r}
 Data %>%
   filter(Region=='SUSTHERB Telemark',EngelskNavn=='Pine' )%>%

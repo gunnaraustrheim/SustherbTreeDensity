@@ -644,7 +644,7 @@ qqline(birchData7$resids1)
 
 Not good. 
 
-Perhaps we should use a gamma distribution
+Perhaps we should use a gamma or poisson distribution
 ```{r}
 hist(birchData7$Quantity)
 ```
@@ -669,6 +669,18 @@ qqline(resid(model2))
 The residuals are better, but not perfect. 
 The link function does not affect them.
 I tried log and inverse as well.
+
+```{r}
+model2.1 <- lme4::glmer(data=birchData7,
+                      Quantity ~ Treatment + (1|Region),
+                      family = poisson(link="log"))
+```
+```{r}
+qqnorm(resid(model2.1))
+qqline(resid(model2.1))
+```
+
+Poisson no better.
 
 Let's try a simple log-normal model
 ```{r}

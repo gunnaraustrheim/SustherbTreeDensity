@@ -56,7 +56,8 @@ Plot NW, NE, SW, SE referes to plot names in Hedmark-Akershus and corresponds to
 
 ## Figures
 
-A scatter plot and loess smoother showing the development of larger birch trees over time. 
+A scatter plot and loess smoother showing the development of larger birch trees over time.
+
 ```{r}
 Data %>%
   filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
@@ -76,6 +77,7 @@ Data %>%
 ```
 
 We can look at species differences, and at the same time reduce the amount of points by taking the mean per location and treatement.
+
 ```{r, warning=F}
 Data %>%
   filter(HeightClass > 5,
@@ -92,6 +94,7 @@ Data %>%
   facet_wrap(.~Taxa)+
   theme_bw(base_size = 12)
 ```
+
 In the figure above we see little obvious differences in birch, pine and spruce, but large differences in rowan.
 
 Since there is auto correlation (repeated measures at the same locatins every year), we could chose to visualise this as lines arther than points.
@@ -110,6 +113,7 @@ Data %>%
 ```
 
 We could look at the same thing, but for the smalles height class
+
 ```{r, warning=F}
 Data %>%
   filter(HeightClass ==1,
@@ -548,3 +552,167 @@ Data %>%
              scales = "free")+
   theme_bw(base_size = 10)
 ```
+
+## LMM
+We will use a frquantist approach to mixed effects modelling with `lme4`. 
+We have a random structure given by the samppling desig.
+Our fixed structure is defined from theoretical expectations (a model set) and no model selection is done.
+Effect sizes are interpreted using the estimated and the errors, simulating a normal distribution for the estimates. 
+P-values are not reported.
+
+```{r}
+library(lme4)
+```
+We will not look at the temporal trends, but rather focus on the last year.
+The last year with data is 2023, which is 15-11 years of data, depending on the region.
+
+```{r}
+Data <- Data %>%
+  mutate(yearsSinceStart = case_when(
+    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
+    Region == "SUSTHERB Telemark" ~ Year -2009,
+    Region == "SUSTHERB Trondelag" ~ Year -2008
+  ))
+```
+
+
+
+```{r}
+table(Data$yearsSinceStart, Data$Region)
+```
+
+It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions.
+With only three regions it is possible to interpret the regional affect and duration effect combined.
+
+```{r}
+modelData <- Data %>%
+  filter(Year == 2023)
+```
+
+```{r}
+pineData <- modelData %>%
+  filter(Taxa == "Pinus sylvestris")
+
+birchData <- modelData %>%
+  filter(Taxa %in%c("Betula pubescens", "Betula pendula") )
+```
+
+One hypothesis is about the quantity of large trees above browsing height.
+Lets define that as the height class 7 (>3m)
+
+```{r}
+birchData7 <- birchData %>%
+  filter(HeightClass ==7)
+```
+
+Then we model the density of these trees as a function of treatment.
+(We could look at productivity and moose density here as well!)
+
+```{r}
+model1 <- lme4::lmer(data = birchData7,
+               Quantity ~ Treatment + (1|Region))
+```
+
+We can run a summary, mainly se see that the model is fitted correctly
+```{r}
+summary(model1)
+```
+
+Lets put the residuals into the dataframe for plotting
+```{r}
+birchData7$resids1 <- resid(model1)
+```
+
+
+```{r}
+birchData7 %>%
+  mutate(resid1 = resid(model1),
+         fitted1 = fitted(model1)) %>%
+  ggplot()+
+  geom_point(aes(x = fitted1, y = resid1),
+             position = position_jitter(),
+             colour = "white", size=3)+
+  theme_dark()
+```
+
+
+
+```{r}
+qqnorm(birchData7$resids1)
+qqline(birchData7$resids1)
+```
+
+Not good. 
+
+Perhaps we should use a gamma distribution
+```{r}
+hist(birchData7$Quantity)
+```
+```{r}
+model2 <- lme4::glmer(data=birchData7,
+                      Quantity ~ Treatment + (1|Region),
+                      family = Gamma(link="identity"))
+summary(model2)
+```
+
+
+
+```{r}
+plot(model2)
+```
+
+```{r}
+qqnorm(resid(model2))
+qqline(resid(model2))
+```
+
+The residuals are better, but not perfect. 
+The link function does not affect them.
+I tried log and inverse as well.
+
+Let's try a simple log-normal model
+```{r}
+model3 <- lmer(data=birchData7,
+               log(Quantity) ~ Treatment +(1|Region))
+summary(model3)
+```
+
+```{r}
+qqnorm(resid(model3))
+qqline(resid(model3))
+```
+
+The log-normal model looks best I think
+
+```{r}
+stargazer::stargazer(model3, 
+                     type = "text",
+                     digits = 3,
+                     star.cutoffs = c(0.05, 0.01, 0.001),
+                     digit.separator = "")
+```
+
+Note that the gamma model gives much smaller errors than the log-normal, so the choice of model actually matters.
+
+Here is one way to visualise the treatmehnt effect:
+
+```{r}
+birchData7 %>%
+  summarise(q = sum(Quantity), .by= c(Region, LocalityName, Treatment)) %>%
+  pivot_wider(names_from = Treatment,
+              values_from = q,
+              values_fill = 0) %>%
+  mutate(effect = Unbrowsed-Browsed) %>%
+  ggplot()+
+  geom_dotplot(aes(x = effect, fill=Region),
+               binpositions = "all",
+               stackgroups = TRUE,
+               method = "histodot",
+               stackdir="center")+
+  ggtitle("Birch > 3m")+
+  geom_vline(xintercept = 0)+
+  theme_bw()+
+  labs(x = "Treatment effect",
+       y = "Frequency of sites")
+```
+

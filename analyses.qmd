@@ -668,163 +668,185 @@ Data %>%
   theme_bw(base_size = 10)
 ```
 
-## LMM
-We will use a frquantist approach to mixed effects modelling with `lme4`. 
-We have a random structure given by the samppling desig.
-Our fixed structure is defined from theoretical expectations (a model set) and no model selection is done.
-Effect sizes are interpreted using the estimated and the errors, simulating a normal distribution for the estimates. 
-P-values are not reported.
+## Modelling
+
+### Subsetting data set
+
+We will use a frequentist approach to mixed effects modelling with `lme4`. We have a random structure given by the sampling design. Our fixed structure is defined from theoretical expectations (a model set) and no model selection is done. Effect sizes are interpreted using the estimated and the errors, simulating a normal distribution for the estimates. P-values are not reported.
 
 ```{r}
 library(lme4)
 ```
-We will not look at the temporal trends, but rather focus on the last year.
-The last year with data is 2023, which is 15-11 years of data, depending on the region.
+
+We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
 ```{r}
 Data <- Data %>%
   mutate(yearsSinceStart = case_when(
+    # Check !! Hedmark Akershus sites were initiated at different times
     Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
     Region == "SUSTHERB Telemark" ~ Year -2009,
     Region == "SUSTHERB Trondelag" ~ Year -2008
   ))
 ```
 
-
-
 ```{r}
 table(Data$yearsSinceStart, Data$Region)
 ```
 
-It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions.
-With only three regions it is possible to interpret the regional affect and duration effect combined.
+It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined.
 
 ```{r}
 modelData <- Data %>%
   filter(Year == 2023)
+
+# same as:
+# modelData <- filter(Data, Year == 2023)
+
+# %>% kalles 'pipe'. Kan også skrives |>
 ```
+
+We can filter by species, like I do below, but first we will look at all species combined.
 
 ```{r}
 pineData <- modelData %>%
   filter(Taxa == "Pinus sylvestris")
 
 birchData <- modelData %>%
-  filter(Taxa %in%c("Betula pubescens", "Betula pendula") )
+  filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
 ```
 
-One hypothesis is about the quantity of large trees above browsing height.
-Lets define that as the height class 7 (>3m)
+One hypothesis is about the quantity of large trees above browsing height. Let's define that as the height class 7 (\>3m).
 
 ```{r}
 birchData7 <- birchData %>%
   filter(HeightClass ==7)
 ```
 
-Then we model the density of these trees as a function of treatment.
-(We could look at productivity and moose density here as well!)
+### Q1 - Stem density all species
+
+Then we model the density of all tree stems as a function of treatment to look for signs of self thinning.
+
+> We could look at productivity and moose density (Laurents method?) here as well!
 
 ```{r}
-model1 <- lme4::lmer(data = birchData7,
-               Quantity ~ Treatment + (1|Region))
+q1_a <- lme4::lmer(data = modelData,
+               Quantity ~ Treatment + (1|Region/LocalityCode))
 ```
 
-We can run a summary, mainly se see that the model is fitted correctly
-```{r}
-summary(model1)
-```
-
-Lets put the residuals into the dataframe for plotting
-```{r}
-birchData7$resids1 <- resid(model1)
-```
-
+We can run a summary, mainly see that the model is fitted correctly
 
 ```{r}
-birchData7 %>%
-  mutate(resid1 = resid(model1),
-         fitted1 = fitted(model1)) %>%
-  ggplot()+
-  geom_point(aes(x = fitted1, y = resid1),
-             position = position_jitter(),
-             colour = "white", size=3)+
-  theme_dark()
+summary(q1_a)
 ```
 
-
+There are only 15 sites in Hedmark:
 
 ```{r}
-qqnorm(birchData7$resids1)
-qqline(birchData7$resids1)
+unique(modelData$LocalityName[modelData$Region=="SUSTHERB Hedmark-Akershus"])
 ```
 
-Not good. 
+There is one missing. It is still present in the full data set:
+
+```{r}
+unique(Data$LocalityName[Data$Region=="SUSTHERB Hedmark-Akershus"])
+```
+
+```{r}
+plot(q1_a)
+```
+
+```{r}
+qqnorm(resid(q1_a))
+qqline(resid(q1_a))
+```
+
+Not good.
 
 Perhaps we should use a gamma or poisson distribution
-```{r}
-hist(birchData7$Quantity)
-```
-```{r}
-model2 <- lme4::glmer(data=birchData7,
-                      Quantity ~ Treatment + (1|Region),
-                      family = Gamma(link="identity"))
-summary(model2)
-```
-
-
 
 ```{r}
-plot(model2)
+hist(modelData$Quantity)
 ```
 
 ```{r}
-qqnorm(resid(model2))
-qqline(resid(model2))
+q1_gamma <- lme4::glmer(data=modelData,
+                      Quantity+0.1 ~ Treatment + (1|Region/LocalityCode),
+                      family = Gamma(link="identity")) #I tried log and inverse link functions as well.
+summary(q1_gamma)
 ```
 
-The residuals are better, but not perfect. 
-The link function does not affect them.
-I tried log and inverse as well.
+```{r}
+plot(q1_gamma)
+```
 
 ```{r}
-model2.1 <- lme4::glmer(data=birchData7,
-                      Quantity ~ Treatment + (1|Region),
+qqnorm(resid(q1_gamma))
+qqline(resid(q1_gamma))
+```
+
+The residuals are better, but not perfect. The link function does not affect them. I tried log and inverse as well.
+
+```{r}
+q1_poisson <- lme4::glmer(data=modelData,
+                      Quantity ~ Treatment + (1|Region/LocalityCode),
                       family = poisson(link="log"))
 ```
+
 ```{r}
-qqnorm(resid(model2.1))
-qqline(resid(model2.1))
+qqnorm(resid(q1_poisson))
+qqline(resid(q1_poisson))
 ```
 
 Poisson no better.
 
 Let's try a simple log-normal model
+
 ```{r}
-model3 <- lmer(data=birchData7,
-               log(Quantity) ~ Treatment +(1|Region))
-summary(model3)
+q1_lognorm <- lmer(data=modelData,
+               log(Quantity+1) ~ Treatment +(1|Region/LocalityCode))
+summary(q1_lognorm)
 ```
 
 ```{r}
-qqnorm(resid(model3))
-qqline(resid(model3))
+qqnorm(resid(q1_lognorm))
+qqline(resid(q1_lognorm))
 ```
 
-The log-normal model looks best I think
+None are very good, but perhaps the gamma model was best?
+
+Are the residulas better if we look at the for the three regions seperately?
 
 ```{r}
-stargazer::stargazer(model3, 
-                     type = "text",
+temp <- modelData %>%
+  mutate(gammaresids = resid(q1_gamma))
+
+par(mfrow=c(1,3))
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Hedmark-Akershus"])
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Telemark"])
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Trondelag"])
+```
+
+The three regions are just as bad.
+
+Is the possion model overdispersed? If so, look into negative binomial.
+
+There are zeros in the data. Is that a mistake?
+
+When (if) the model is done, here is how you can get a nice summary table.
+
+```{r}
+stargazer::stargazer(q1_gamma, 
+                     type = "text", # change to latex to get it directly into a manuscript
                      digits = 3,
                      star.cutoffs = c(0.05, 0.01, 0.001),
                      digit.separator = "")
 ```
 
-Note that the gamma model gives much smaller errors than the log-normal, so the choice of model actually matters.
-
-Here is one way to visualise the treatmehnt effect:
+Here is one way to visualise the treatment effect:
 
 ```{r}
-birchData7 %>%
+modelData %>%
   summarise(q = sum(Quantity), .by= c(Region, LocalityName, Treatment)) %>%
   pivot_wider(names_from = Treatment,
               values_from = q,
@@ -836,7 +858,7 @@ birchData7 %>%
                stackgroups = TRUE,
                method = "histodot",
                stackdir="center")+
-  ggtitle("Birch > 3m")+
+  ggtitle("Tree stems (all species)")+
   geom_vline(xintercept = 0)+
   theme_bw()+
   labs(x = "Treatment effect",

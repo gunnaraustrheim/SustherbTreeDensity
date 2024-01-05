@@ -60,7 +60,7 @@ A scatter plot and loess smoother showing the development of larger birch trees 
 
 ```{r}
 Data %>%
-  filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
+  #filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
   ggplot(aes(x=Year,y=Quantity))+
   geom_jitter(
              size=3,
@@ -74,6 +74,74 @@ Data %>%
              scales = "free_y")+
   theme_bw(base_size = 12)
   
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Betula pubescens")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Sorbus aucuparia")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Pinus sylvestris")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Picea abies")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
 ```
 
 We can look at species differences, and at the same time reduce the amount of points by taking the mean per location and treatement.
@@ -154,6 +222,53 @@ Data %>%
   facet_wrap(.~Year, ncol=4)+
   guides(fill="none")
 ```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Picea abies"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Pinus sylvestris"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Betula pubescens"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+Gunnars plot 0712
 
 ```{r}
 Data %>%
@@ -727,4 +842,3 @@ birchData7 %>%
   labs(x = "Treatment effect",
        y = "Frequency of sites")
 ```
-

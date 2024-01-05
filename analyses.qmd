@@ -56,10 +56,15 @@ Plot NW, NE, SW, SE referes to plot names in Hedmark-Akershus and corresponds to
 
 ## Figures
 
-A scatter plot and loess smoother showing the development of larger birch trees over time. 
+A scatter plot and loess smoother showing the development of larger birch trees over time.
+
+```{r}
+
+```
+
 ```{r}
 Data %>%
-  filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
+  #filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
   ggplot(aes(x=Year,y=Quantity))+
   geom_jitter(
              size=3,
@@ -75,7 +80,76 @@ Data %>%
   
 ```
 
+```{r}
+Data %>%
+  filter(Taxa == "Betula pubescens")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Sorbus aucuparia")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Pinus sylvestris")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Picea abies")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
 We can look at species differences, and at the same time reduce the amount of points by taking the mean per location and treatement.
+
 ```{r, warning=F}
 Data %>%
   filter(HeightClass > 5,
@@ -92,6 +166,7 @@ Data %>%
   facet_wrap(.~Taxa)+
   theme_bw(base_size = 12)
 ```
+
 In the figure above we see little obvious differences in birch, pine and spruce, but large differences in rowan.
 
 Since there is auto correlation (repeated measures at the same locatins every year), we could chose to visualise this as lines arther than points.
@@ -110,6 +185,7 @@ Data %>%
 ```
 
 We could look at the same thing, but for the smalles height class
+
 ```{r, warning=F}
 Data %>%
   filter(HeightClass ==1,
@@ -150,6 +226,53 @@ Data %>%
   facet_wrap(.~Year, ncol=4)+
   guides(fill="none")
 ```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Picea abies"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Pinus sylvestris"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Betula pubescens"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+Gunnars plot 0712
 
 ```{r}
 Data %>%
@@ -547,4 +670,16 @@ Data %>%
              ncol=1,
              scales = "free")+
   theme_bw(base_size = 10)
+```
+
+```{r}
+install.packages()
+
+ 
+```
+
+```{r}
+Data %>%
+mixed.lmer<-lmer(Quantity~Treatment (1|localityCode/Plot))  
+  
 ```

@@ -1,0 +1,104 @@
+---
+title: "Visualising tree demographical changes over time"
+format: html
+editor: visual
+---
+
+## Ridge plots
+
+We have discussed various way to plot /visualise the changes the vertical structure of the tree community over time. The last suggestion I had was using violin plot. Here I test out another idea, using ridge plots.
+
+```{r Loadpackages, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(ggridges)
+library(DT)
+```
+
+```{r loadData}
+dat <- read_excel("../data/DensityAnno2023.xlsx") |> # the ../ part takes you one folder back, since the working directory for this quarto file is in the R folder and not the root folder
+   filter(Taxa == "Sorbus aucuparia") # just rowan for testing
+```
+
+Coloured by year
+
+```{r}
+dat |>
+  uncount(Quantity) |>
+  ggplot(aes(x = HeightClass, 
+             y = factor(Year),
+             #height = Quantity,
+             fill = Year
+             ))+
+  geom_density_ridges(#stat = "identity",
+                      alpha=.7,
+                      bandwidth = 1,
+                      scale=2)+
+  theme_ridges() +
+  xlim(c(1,7))+
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))+
+  labs(y = "Year", x = "Heigth class")+
+  guides(fill = 'none')+
+  coord_flip()+
+  facet_wrap(.~Treatment,ncol=1)
+
+```
+
+Coloured by the variable itself, and with facet grid rather than facet wrap.
+
+```{r}
+dat |>
+  uncount(Quantity) |>
+  ggplot(aes(x = HeightClass, 
+             y = factor(Year),
+             #height = Quantity,
+             fill = after_stat(x)
+             ))+
+  geom_density_ridges_gradient(#stat = "identity",
+                      alpha=.7,
+                      bandwidth = 1,
+                      scale=2)+
+  scale_fill_viridis_c(name = "Height class",
+                       direction=-1)+
+  theme_ridges() +
+  xlim(c(1,7))+
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))+
+  labs(y = "Year", x = "Heigth class")+
+  guides(fill = 'none')+
+  coord_flip()+
+  facet_grid(row = vars(Treatment))
+```
+
+And a version
+
+-   coloured by treatment
+
+-   centering axes labels
+
+-   a vertical line for the median
+
+-   turning off grid lines, and
+
+-   using the reversed (original) orientation
+
+```{r}
+dat |>
+  uncount(Quantity) |>
+  ggplot(aes(x = HeightClass, 
+             y = factor(Year),
+             #height = Quantity,
+             fill = Treatment
+             ))+
+  geom_density_ridges(
+                      alpha=.7,
+                      bandwidth = 1,
+                      scale=2,
+                      quantile_lines = TRUE, 
+                      quantiles = 2)+
+  theme_ridges(grid = FALSE, center_axis_labels = TRUE) +
+  xlim(c(1,7))+
+  labs(y = "Year", x = "Heigth class")+
+  guides(fill = 'none')+
+  facet_wrap(.~Treatment,ncol=2)
+
+```

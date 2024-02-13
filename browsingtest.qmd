@@ -1,0 +1,86 @@
+---
+title: "Browsing pressure"
+format: html
+editor: visual
+---
+
+## Browsing index
+
+The index is based on De Vriendt et al. 2020 https://doi.org/10.1111/jvs.12945to calculate the browsing pressure at a site level (n=47) to better model the site spesific changes in tree density. Browsing pressure is based on shoot data from all tree species recorderd within the 10 m-2 circels (n=4) in each 20x20 m plot. All tree species were included except Picea abies (normally not browsed).
+
+The index gives a mean over the years the number of browsing shoots have been recorded at each site which is 15 (Trøndelag, Telemark & Vestfold) while the number of years for the Innlandet & Viken sites varies between 9-12 (check!).
+
+```{r}
+
+
+library(readxl)
+library(knitr)
+library(tidyverse)
+
+dat <- read_excel("C:/rwrkd/Github/SustHerbTreeDensity/data/Browsing2023.xlsx")
+
+## changing covariate names to avoid issues
+colnames(dat)[34] <- "unbrowsed_count"
+colnames(dat)[35] <- "sum_old_new"
+
+
+out_tot <- NULL #final dataframe with 1 rows = 1 site/year 
+for(site in unique(dat$siteNumber)){ #first loop dealing with the site 
+  
+  #Making a subset of the full dataframe with all individuals (browsed+unbrowsed) from the site and without P abies sp  
+  tmp <- dat[dat$siteNumber %in% site & !dat$scientificName %in% "Picea abies",]
+   
+  
+  for(y in unique(tmp$year)){#second loop dealing with the different years for each site
+    #create a dataframe to store results for the specific site/year 
+    out <- data.frame(site=site, year=y, UB=NA, SON=NA, SAB=NA, exp=NA, local=NA)
+    
+    #new subset but with only the specific year 
+    tmp2 <- tmp[tmp$year==y,]
+    #transform unbrowsed count in numeric data
+    tmp2$unbrowsed_count <- as.numeric(tmp2$unbrowsed_count)
+    
+    #depending on the type of experiment (unbrowsed or browsed) the calcul for SAB 
+    # (sum of available browsed and browsed) is different so 2 conditions
+    if(unique(tmp2$experiment) %in% "Unbrowsed"){ #first condition for unrowsed
+      UB <- sum(na.exclude(tmp2$unbrowsed_count)) #sum of available shoots
+      SON <- sum(na.exclude(tmp2$sum_old_new)) #sum of browsed (old and new)
+      SAB <- sum(na.exclude(tmp2$unbrowsed_count)) # sum of available browsed and browsed == #sum of available shoots
+      exp <- "Unbrowsed" 
+      local <- unique(tmp2$locality) #need the name of the locality later to make the correspondance between unbrowsed and browsed for one site
+    }
+    if(unique(tmp2$experiment) %in% "Browsed"){ #second condition for browsed
+      UB <- sum(na.exclude(tmp2$unbrowsed_count))#sum of available shoots
+      SON <- sum(na.exclude(tmp2$sum_old_new))#sum of browsed (old and new)
+      SAB <- sum(na.exclude(tmp2$unbrowsed_count)) + sum(na.exclude(tmp2$sum_old_new)) # this time sum of available browsed and browsed == #sum of available shoots + #sum of browsed (old and new)
+      exp <- "Browsed"
+      local <- unique(tmp2$locality)
+    }
+    
+    # here we add results in our dataframe for the site/year
+    out$UB <- UB 
+    out$SON <- SON
+    out$SAB <- SAB
+    out$exp <- exp
+    out$local <- local
+    
+    #we bind the result out to our final dataframe out_tot that will enventually contains the results for all site/year
+    out_tot <- rbind(out_tot, out)
+    
+  }
+  
+}
+
+
+## Now we want for each site and year the dAUC: result store in out_tot2
+## here we simplify our dataframe out_tot by locality and year (one row of out_tot2 ## will be one site/year) and we compute the dAUC 
+out_tot2 <- out_tot %>% group_by(local, year) %>% summarise(dAUC = out_tot$SAB[out_tot$local %in% local & out_tot$exp %in% "Unbrowsed" & out_tot$year %in% year] - out_tot$SAB[out_tot$local %in% local & out_tot$exp %in% "Browsed" & out_tot$year %in% year])
+
+
+
+```
+
+```{r}
+#| echo: false
+2 * 2
+```

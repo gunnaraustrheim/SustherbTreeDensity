@@ -4,7 +4,18 @@ format: html
 editor: visual
 ---
 
+## Browsing index
+
+The index is based on De Vriendt et al. 2020 <https://doi.org/10.1111/jvs.12945to> calculate the browsing pressure at a site level (n=47) to better model the site specific changes in tree density. Browsing pressure is based on shoot data from all tree species recorded within the 10 m-2 circels (n=4) in each 20x20 m plot. All tree species were included except Picea abies (normally not browsed).
+
+The index gives a mean over the years the number of browsing shoots have been recorded at each site which is 15 (Trøndelag), 16 (Telemark & Vestfold) 9-12 (check!) Innlandet & Viken.
+
+High delta AUG corresponds to high grazing pressure, while low delta AUG is low grazing pressure i.e. the difference between the cumulative number of twigs available in an exclosure and the sum of unbrowsed (available) and browsed twigs in a paired unfenced area.
+
+First we calculate dAUC at a locality level based on SON and SAB
+
 ```{r}
+
 
 library(readxl)
 library(knitr)
@@ -72,15 +83,534 @@ out_tot2 <- out_tot %>% group_by(local, year) %>% summarise(dAUC = out_tot$SAB[o
 
 ```
 
-## Browsing index
+## Browsing pressure across all localities and years
 
-The index is based on De Vriendt et al. 2020the annual biomass increments inside the exclosires. The allometric models are published in the supplementary information in the first paper. The first paper only had the Trøndelag sites, and therefore it also was able to combine the annual biomass increment with the canopy cover values to get an even better index. The second paper included the Telemark site, but there has not been calculated any productivity indeces for the Hedmark-Akershus sites.
-
-> **Goal** - To calculate a productivity index for the three regions, using all the years of data.
+Trying to plot the dAUG values/browsing pressure values across time and space (localities)
 
 ```{r}
-#| echo: false
-2 * 2
+view(out_tot2)
+
+library(ggplot2)
+
+ggplot(
+  data = out_tot2,
+  mapping = aes(x = year, y = dAUC)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+ggsave(filename = "browsing_and_time.png")
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Making a plot on dAUG at a locality level over years show a linear decrease in grazing pressure over time across all sites (n=47), Thus, the deficit of twigs caused by browsing at a given site is decreasing over time.
+
+```{r}
+
+ggplot(out_tot2, aes(x = local, y = dAUC)) +
+  geom_boxplot()
+```
+
+Delta AUG shows a large variation among all 47 localities
+
+#### Make a new column in a data matrix
+
+Try to establish a new column in the file "out_tot2" for the regional level based on the column local and separated with ("\|")
+
+```{r}
+library(stringr)
+out_tot2$Region<-as.factor(word(out_tot2$local, 1,sep = fixed("|")))
+out_tot2$Locality<-as.factor(word(out_tot2$local, 2,sep = fixed("|")))
+view(out_tot)
+```
+
+```{r}
+ggplot(
+  data = out_tot2,
+  mapping = aes(x = local, y = dAUC),
+  filter(Region=="Telemark"))
+  ggplot(out_tot2, aes(x = local, y = dAUC)) +
+  geom_boxplot()
+  # does not work. Why?
+  
+```
+
+```{r}
+data(out_tot2) %>%
+  filter(Region == "Telemark")%>%
+  ggplot(aes(x=local,y=dAUC))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(rows=vars(Locality),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+#does not work. Why?
+```
+
+## Browsing pressure within each region: dAUC
+
+dAUC (change in area under the curve) is based on the formula: available twigs in the exclosure - (available twigs + browsed twigs) in the browsed control. Specificall this is again based on SON (summary of old and new browsed) and SAB (summary of available shoots for browsing) from the file "out_tot" using explanatory variables exp, year, loc. family="quasibinomial" Also identified some errors in the dataset: 1. 22 rows have SON \> SAB which is not possible,
+
+### dAUC in Hedmark
+
+```{r}
+library(MuMIn)
+library(AICcmodavg)
+out_tot2$Region<-as.factor(word(out_tot2$local, 1,sep = fixed("|")))
+out_tot2$loc<-as.factor(word(out_tot2$local, 2,sep = fixed("|")))
+#out_tot2$exp<-as.factor(out_tot2$exp)
+out_tot2$yearf<-as.factor(out_tot2$year)
+out_tot2$yearc<-as.numeric(out_tot2$year)
+out_tot2$dAUC<-as.numeric(out_tot2$dAUC)
+#out_tot2$delta<-out_tot2$SAB-out_tot2$SON
+#pb_out<-out_tot2[out_tot$delta<0,]
+#ok<-droplevels(out_tot[!(out_tot$delta<0),])
+#ok0SON<-ok[ok$SON==0,]
+#ok0SAB<-ok[ok$SAB==0,]
+#ok2<-ok[ok$SAB>0,]
+#dAUC for Hedmark
+ok2HE<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[1],]
+hist(ok2HE$dAUC)
+mod1<-lm(dAUC~(year+loc),data=ok2HE)
+anova(mod1)
+dredge(mod1)
+summary(mod1)
+
+#ok2TE$pred<-predict(mod1,type="response")
+
+#ggplot
+#data(ok2HE, aes( y=pred, x=yearc,colour=exp)) +
+        #facet_grid(~loc)+ 
+        #facet_wrap(~loc,nrow=4)+
+        #geom_line(aes(group=exp))
+
+ggplot(ok2HE, aes(y=dAUC, x=yearc)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point()+
+geom_smooth()
+#,scales = "free_y"
+```
+
+### dAUC in Telemark
+
+```{r}
+#library(MuMIn)
+#library(AICcmodavg)
+#out_tot2$Region<-as.factor(word(out_tot2$local, 1,sep = fixed("|")))
+#out_tot2$loc<-as.factor(word(out_tot2$local, 2,sep = fixed("|")))
+#out_tot2$exp<-as.factor(out_tot2$exp)
+#out_tot2$yearf<-as.factor(out_tot2$year)
+#out_tot2$yearc<-as.numeric(out_tot2$year)
+#out_tot2$dAUC<-as.numeric(out_tot2$dAUC)
+#out_tot2$delta<-out_tot2$SAB-out_tot2$SON
+#pb_out<-out_tot2[out_tot$delta<0,]
+#ok<-droplevels(out_tot[!(out_tot$delta<0),])
+#ok0SON<-ok[ok$SON==0,]
+#ok0SAB<-ok[ok$SAB==0,]
+#ok2<-ok[ok$SAB>0,]
+ok2TE<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[2],]
+hist(ok2TE$dAUC)
+mod1<-lm(dAUC~(year+loc),data=ok2TE)
+anova(mod1)
+dredge(mod1)
+summary(mod1)
+
+#ok2TE$pred<-predict(mod1,type="response")
+
+#ggplot
+#data(ok2HE, aes( y=pred, x=yearc,colour=exp)) +
+        #facet_grid(~loc)+ 
+        #facet_wrap(~loc,nrow=4)+
+        #geom_line(aes(group=exp))
+
+ggplot(ok2TE, aes(y=dAUC, x=yearc)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point()+
+geom_smooth()
+#,scales = "free_y"
+```
+
+### dAUC in Tingvoll
+
+```{r}
+#library(MuMIn)
+#library(AICcmodavg)
+#out_tot2$Region<-as.factor(word(out_tot2$local, 1,sep = fixed("|")))
+#out_tot2$loc<-as.factor(word(out_tot2$local, 2,sep = fixed("|")))
+#out_tot2$exp<-as.factor(out_tot2$exp)
+#out_tot2$yearf<-as.factor(out_tot2$year)
+#out_tot2$yearc<-as.numeric(out_tot2$year)
+#out_tot2$dAUC<-as.numeric(out_tot2$dAUC)
+#out_tot2$delta<-out_tot2$SAB-out_tot2$SON
+#pb_out<-out_tot2[out_tot$delta<0,]
+#ok<-droplevels(out_tot[!(out_tot$delta<0),])
+#ok0SON<-ok[ok$SON==0,]
+#ok0SAB<-ok[ok$SAB==0,]
+#ok2<-ok[ok$SAB>0,]
+ok2TI<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[3],]
+hist(ok2TI$dAUC)
+mod1<-lm(dAUC~(year+loc),data=ok2TI)
+anova(mod1)
+dredge(mod1)
+summary(mod1)
+
+#ok2TE$pred<-predict(mod1,type="response")
+
+#ggplot
+#data(ok2HE, aes( y=pred, x=yearc,colour=exp)) +
+        #facet_grid(~loc)+ 
+        #facet_wrap(~loc,nrow=4)+
+        #geom_line(aes(group=exp))
+
+ggplot(ok2TI, aes(y=dAUC, x=yearc)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point()+
+geom_smooth()
+#,scales = "free_y"
+```
+
+### dAUC in Trøndelag
+
+```{r}
+#library(MuMIn)
+#library(AICcmodavg)
+#out_tot2$Region<-as.factor(word(out_tot2$local, 1,sep = fixed("|")))
+#out_tot2$loc<-as.factor(word(out_tot2$local, 2,sep = fixed("|")))
+#out_tot2$exp<-as.factor(out_tot2$exp)
+#out_tot2$yearf<-as.factor(out_tot2$year)
+#out_tot2$yearc<-as.numeric(out_tot2$year)
+#out_tot2$dAUC<-as.numeric(out_tot2$dAUC)
+#out_tot2$delta<-out_tot2$SAB-out_tot2$SON
+#pb_out<-out_tot2[out_tot$delta<0,]
+#ok<-droplevels(out_tot[!(out_tot$delta<0),])
+#ok0SON<-ok[ok$SON==0,]
+#ok0SAB<-ok[ok$SAB==0,]
+#ok2<-ok[ok$SAB>0,]
+ok2TR<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[4],]
+hist(ok2TR$dAUC)
+mod1<-lm(dAUC~(year+loc),data=ok2TR)
+anova(mod1)
+#dredge(mod1)
+summary(mod1)
+
+#ok2TE$pred<-predict(mod1,type="response")
+
+#ggplot
+#data(ok2HE, aes( y=pred, x=yearc,colour=exp)) +
+        #facet_grid(~loc)+ 
+        #facet_wrap(~loc,nrow=4)+
+        #geom_line(aes(group=exp))
+
+ggplot(ok2TR, aes(y=dAUC, x=yearc)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point()+
+geom_smooth()
+#,scales = "free_y"
+```
+
+## Examine browsing in all regions: SON and SAB
+
+Examine variables SON (summary of old and new browsed) and SAB (summary of available shoots for browsing) from the file "out_tot" using explanatory variables exp, year, loc. family="quasibinomial" Also identified some errors in the dataset: 1. 22 rows have SON \> SAB which is not possible,
+
+### Browsing Telemark: SON and SAB
+
+```{r}
+library(MuMIn)
+library(AICcmodavg)
+out_tot$Region<-as.factor(word(out_tot$local, 1,sep = fixed("|")))
+out_tot$loc<-as.factor(word(out_tot$local, 2,sep = fixed("|")))
+out_tot$exp<-as.factor(out_tot$exp)
+out_tot$yearf<-as.factor(out_tot$year)
+out_tot$yearc<-as.numeric(out_tot$year)
+out_tot$delta<-out_tot$SAB-out_tot$SON
+pb_out<-out_tot[out_tot$delta<0,]
+ok<-droplevels(out_tot[!(out_tot$delta<0),])
+ok0SON<-ok[ok$SON==0,]
+ok0SAB<-ok[ok$SAB==0,]
+ok2<-ok[ok$SAB>0,]
+ok2TE<-ok2[ok2$Region==unique(ok2$Region)[2],]
+mod1<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2TE)
+anova(mod1,test="Chisq")
+#dredge(mod1)
+summary(mod1)
+
+
+```
+
+```{r}
+options(na.action = "na.fail")
+
+ok2<-ok[ok$SAB>0,]
+ok2TE<-ok2[ok2$Region==unique(ok2$Region)[2],]
+modTE1<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2TE)
+modTE2<-glm(cbind(SON,SAB)~exp*yearc+loc,family="quasibinomial",data=ok2TE)
+modTE3<-glm(cbind(SON,SAB)~exp+yearc+loc,family="quasibinomial",data=ok2TE)
+anova(modTE1,test="Chisq")
+summary(modTE1)
+
+ok2TE<-ok2[ok2$Region==unique(ok2$Region)[2],]
+mod2<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2TE)
+anova(mod1,test="Chisq")
+
+
+ok2TE$pred1<-predict(modTE1,type="response")
+ok2TE$pred2<-predict(modTE2,type="response")
+ok2TE$pred3<-predict(modTE3,type="response")
+
+ggplot(ok2TE, aes(fill=exp, y=SON/SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TE, aes(fill=exp, y=SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TE, aes(fill=exp, y=pred1, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TE, aes(fill=exp, y=pred2, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TE, aes(fill=exp, y=pred3, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+```
+
+```         
+```
+
+Seems to be a decrease in available shoots especially in unbrowsed sites (but also 4 browsed sites) after ca 2020. Again large variation among localities.
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+j
+
+```{r}
+
+```
+
+### Browsing Hedmark: SON and SAB
+
+Do the same models for region 1 = Hedmark
+
+```{r}
+
+options(na.action = "na.fail")
+
+ok2<-ok[ok$SAB>0,]
+ok2HE<-ok2[ok2$Region==unique(ok2$Region)[1],]
+modHE1<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2HE)
+modHE2<-glm(cbind(SON,SAB)~exp*yearc+loc,family="quasibinomial",data=ok2HE)
+modHE3<-glm(cbind(SON,SAB)~exp+yearc+loc,family="quasibinomial",data=ok2HE)
+anova(modHE1,test="Chisq")
+summary(modHE1)
+```
+
+Plot of real values (SON/SAB) and 3 predicted models for Hedmark
+
+```{r}
+ok2HE$pred1<-predict(modHE1,type="response")
+ok2HE$pred2<-predict(modHE2,type="response")
+ok2HE$pred3<-predict(modHE3,type="response")
+
+ggplot(ok2HE, aes(fill=exp, y=SON/SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2HE, aes(fill=exp, y=SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2HE, aes(fill=exp, y=pred1, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2HE, aes(fill=exp, y=pred2, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2HE, aes(fill=exp, y=pred3, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+```
+
+Real and predicted values for the response cbind(SON,SAB) using Pred1. (exp+yearc+loc)\^2,Pred. 2. exp\*yearc+loc, and Pred3: exp+yearc+loc, (data: quasibinomial)
+
+Values of SON/SAB shows a higher browsing pressure at the first year of sampling due to lack of winterbrowsing analyses before the treatment analyses
+
+### Browsing Tingvoll:SON and SAB
+
+Do similar analyses for Tingvoll (Region 3)
+
+```{r}
+
+options(na.action = "na.fail")
+
+ok2<-ok[ok$SAB>0,]
+ok2TI<-ok2[ok2$Region==unique(ok2$Region)[3],]
+modTI1<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2TI)
+modTI2<-glm(cbind(SON,SAB)~exp*yearc+loc,family="quasibinomial",data=ok2TI)
+modTI3<-glm(cbind(SON,SAB)~exp+yearc+loc,family="quasibinomial",data=ok2TI)
+anova(modTI1,test="Chisq")
+summary(modTI1)
+
+
+```
+
+Plot of real values (SON/SAB) and 3 predicted models for Tingvoll
+
+```{r}
+ok2TI$pred1<-predict(modTI1,type="response")
+ok2TI$pred2<-predict(modTI2,type="response")
+ok2TI$pred3<-predict(modTI3,type="response")
+
+ggplot(ok2TI, aes(fill=exp, y=SON/SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TI, aes(fill=exp, y=SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TI, aes(fill=exp, y=pred1, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TI, aes(fill=exp, y=pred2, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TI, aes(fill=exp, y=pred3, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+```
+
+### Browsing Trøndelag:SON and SAB
+
+Do similar analyses for Trøndelag (Region 4)
+
+```{r}
+options(na.action = "na.fail")
+
+ok2<-ok[ok$SAB>0,]
+ok2TR<-ok2[ok2$Region==unique(ok2$Region)[4],]
+modTR1<-glm(cbind(SON,SAB)~(exp+yearc+loc)^2,family="quasibinomial",data=ok2TR)
+modTR2<-glm(cbind(SON,SAB)~exp*yearc+loc,family="quasibinomial",data=ok2TR)
+modTR3<-glm(cbind(SON,SAB)~exp+yearc+loc,family="quasibinomial",data=ok2TR)
+anova(modTR1,test="Chisq")
+summary(modTR1)
+
+
+```
+
+Plot of real values SON/SAB and 3 predicted models for Trøndelag
+
+```{r}
+ok2TR$pred1<-predict(modTR1,type="response")
+ok2TR$pred2<-predict(modTR2,type="response")
+ok2TR$pred3<-predict(modTR3,type="response")
+
+ggplot(ok2TR, aes(fill=exp, y=SON/SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TR, aes(fill=exp, y=SAB, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+
+ggplot(ok2TR, aes(fill=exp, y=pred1, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TR, aes(fill=exp, y=pred2, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_line(aes(group=exp))
+
+ggplot(ok2TR, aes(fill=exp, y=pred3, x=yearc,colour=exp)) +
+        facet_grid(~loc)+ 
+        facet_wrap(~loc,nrow=4)+
+        geom_point(aes(group=exp))+
+geom_smooth(aes(group=exp))
+```
+
+In Trøndelag the winterbrowsing analyses started in spring 2009, ca 7-8 months after the exclosures were established (so after one winter with treatment).
+
+```         
+```
+
+```{r}
+
+  
+ 
+```
+
+```         
+```
+
+```{r}
+
+
+
+
+
+
+
+```
+
+```         
+```
+
+```         
+```
+
+```         
+```
+
+```         
+```

@@ -130,6 +130,8 @@ geom_smooth(aes(group=exp))
 
 ```
 
+Sum of available browse (SAB) showed an increase in the first years independent on treatment, and then decreased in unbrowsed plots after a peak in 2018. SAB continued to increase at browsed plots and reached a peak at 2020, before a gradual decrease. However, the availablity of SAB remained higher in browsed plots from 2018 and later.
+
 #### Make a new column in a data matrix
 
 Try to establish a new column in the file "out_tot2" for the regional level based on the column local and separated with ("\|")

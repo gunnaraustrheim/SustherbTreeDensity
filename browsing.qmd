@@ -112,6 +112,24 @@ ggplot(out_tot2, aes(x = local, y = dAUC)) +
 
 Delta AUG shows a large variation among all 47 localities
 
+## Examine SAB across all localities and years
+
+```{r}
+view(out_tot)
+
+library(ggplot2)
+
+ggplot(
+  data = out_tot,
+  mapping = aes(fill=exp, x = year, y = SAB, colour=exp)
+) +
+  geom_point(aes(group=exp)) +
+  
+geom_smooth(aes(group=exp))
+
+
+```
+
 #### Make a new column in a data matrix
 
 Try to establish a new column in the file "out_tot2" for the regional level based on the column local and separated with ("\|")

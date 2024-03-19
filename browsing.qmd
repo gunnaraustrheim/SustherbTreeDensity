@@ -144,31 +144,17 @@ view(out_tot)
 ```
 
 ```{r}
-ggplot(
-  data = out_tot2,
-  mapping = aes(x = local, y = dAUC),
-  filter(Region=="Telemark"))
-  ggplot(out_tot2, aes(x = local, y = dAUC)) +
-  geom_boxplot()
+#ggplot(
+  #data = out_tot2,
+  #mapping = aes(x = local, y = dAUC),
+  #filter(Region=="Telemark"))
+  #ggplot(out_tot2, aes(x = local, y = dAUC)) +
+  #geom_boxplot()
   # does not work. Why?
   
 ```
 
-```{r}
-data(out_tot2) %>%
-  filter(Region == "Telemark")%>%
-  ggplot(aes(x=local,y=dAUC))+
-  geom_jitter(
-             size=3,
-             width=0.1,
-             alpha=0.1)+
-  geom_smooth(method = "loess",
-              se=F)+
-  facet_grid(rows=vars(Locality),
-             #ncol=1,
-             scales = "free_y")+
-  theme_bw(base_size = 12)
-#does not work. Why?
+```{}
 ```
 
 ## Browsing pressure within each region: dAUC
@@ -197,7 +183,7 @@ ok2HE<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[1],]
 hist(ok2HE$dAUC)
 mod1<-lm(dAUC~(year+loc),data=ok2HE)
 anova(mod1)
-dredge(mod1)
+#dredge(mod1)
 summary(mod1)
 
 #ok2TE$pred<-predict(mod1,type="response")
@@ -237,7 +223,7 @@ ok2TE<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[2],]
 hist(ok2TE$dAUC)
 mod1<-lm(dAUC~(year+loc),data=ok2TE)
 anova(mod1)
-dredge(mod1)
+#dredge(mod1)
 summary(mod1)
 
 #ok2TE$pred<-predict(mod1,type="response")
@@ -277,7 +263,7 @@ ok2TI<-out_tot2[out_tot2$Region==unique(out_tot2$Region)[3],]
 hist(ok2TI$dAUC)
 mod1<-lm(dAUC~(year+loc),data=ok2TI)
 anova(mod1)
-dredge(mod1)
+#dredge(mod1)
 summary(mod1)
 
 #ok2TE$pred<-predict(mod1,type="response")

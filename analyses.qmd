@@ -12,10 +12,11 @@ Intro to the ms.
 
 Import data from NTNU University museum: Natron. Marc did a pivot table in excel.
 
-```{r Loadpackages, warning=FALSE}
+```{r setup, warning=FALSE}
 library(tidyverse)
 library(readxl)
 library(DT)
+library(lme4)
 ```
 
 Imported DensityAnno2023.xlsx, with 3 regions all tree taxa and 7 heightclasses
@@ -23,6 +24,36 @@ Imported DensityAnno2023.xlsx, with 3 regions all tree taxa and 7 heightclasses
 ```{r}
 Data <- read_excel("data/DensityAnno2023.xlsx")
 ```
+
+Importing productivity index. See `productivity index.qmd`.
+
+<!--# This index should be updated! -->
+
+```{r}
+# read data
+productivityIndex <- readRDS("data/productivityIndex.RDS")
+
+Data <- Data %>%
+  left_join(productivityIndex, by=join_by(LocalityName))
+```
+
+Gunnar: Fjern rader med quantity == null (0). 
+
+Jeg tror vi må legge til rader med nuller der en art ikke er registrert.
+Anders: fix.
+
+```{r}
+Data <- Data |>
+    complete(Region,
+             LocalityName,
+             LocalityCode,
+             Plot,
+             Treatment,
+             Year,
+             Taxa,
+             fill = list(Quantity = 0))
+```
+
 
 Subset rows (20) and columns (10)
 
@@ -32,15 +63,11 @@ DT::datatable(Data[1:20,1:10])
 
 ## Clean data
 
-```{r}
-library(dplyr)
-   
-#Data <- rename(Data,heightclass=`height class 50cm (categorical)` )
-```
+...
 
 ## Explore data
 
-Check if the datafile is ok
+Check if the data file is ok
 
 ```{r}
 table(Data$Region)
@@ -674,10 +701,6 @@ Data %>%
 
 We will use a frequentist approach to mixed effects modelling with `lme4`. We have a random structure given by the sampling design. Our fixed structure is defined from theoretical expectations (a model set) and no model selection is done. Effect sizes are interpreted using the estimated and the errors, simulating a normal distribution for the estimates. P-values are not reported.
 
-```{r}
-library(lme4)
-```
-
 We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
 ```{r}
@@ -698,7 +721,15 @@ It's a shame to cut 4 years with data, so I will just use the 2023 data for all 
 
 ```{r}
 modelData <- Data %>%
-  filter(Year == 2023)
+  filter(
+    Year == 2023,
+    !LocalityName %in% c(
+      "Hedmark | Nes 1 | Winter browsing",
+      "TrOndelag | Selbu_Fl | Winter browsing",
+      "TrOndelag | Malvik | Winter browsing",
+      "TrOndelag | Hi_tydal | Winter browsing"
+    )
+  )
 
 # same as:
 # modelData <- filter(Data, Year == 2023)
@@ -725,13 +756,11 @@ birchData7 <- birchData %>%
 
 ### Q1 - Stem density all species
 
-Then we model the density of all tree stems as a function of treatment to look for signs of self thinning.
-
-> We could look at productivity and moose density (Laurents method?) here as well!
+Then we model the density of all tree stems as a function of treatment and productivity to look for signs of self thinning.
 
 ```{r}
 q1_a <- lme4::lmer(data = modelData,
-               Quantity ~ Treatment + (1|Region/LocalityCode))
+  Quantity ~ Treatment * productivityIndex + (1|Region/LocalityCode))
 ```
 
 We can run a summary, mainly see that the model is fitted correctly
@@ -740,17 +769,7 @@ We can run a summary, mainly see that the model is fitted correctly
 summary(q1_a)
 ```
 
-There are only 15 sites in Hedmark:
 
-```{r}
-unique(modelData$LocalityName[modelData$Region=="SUSTHERB Hedmark-Akershus"])
-```
-
-There is one missing. It is still present in the full data set:
-
-```{r}
-unique(Data$LocalityName[Data$Region=="SUSTHERB Hedmark-Akershus"])
-```
 
 ```{r}
 plot(q1_a)
@@ -770,14 +789,12 @@ hist(modelData$Quantity)
 ```
 
 ```{r}
-q1_gamma <- lme4::glmer(data=modelData,
-                      Quantity+0.1 ~ Treatment + (1|Region/LocalityCode),
-                      family = Gamma(link="identity")) #I tried log and inverse link functions as well.
+q1_gamma <- lme4::glmer(
+  data = modelData,
+  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region / LocalityCode),
+  family = Gamma(link = "inverse")
+) # I tried log and inverse link functions as well.
 summary(q1_gamma)
-```
-
-```{r}
-plot(q1_gamma)
 ```
 
 ```{r}
@@ -785,12 +802,18 @@ qqnorm(resid(q1_gamma))
 qqline(resid(q1_gamma))
 ```
 
-The residuals are better, but not perfect. The link function does not affect them. I tried log and inverse as well.
+
+
+
 
 ```{r}
-q1_poisson <- lme4::glmer(data=modelData,
-                      Quantity ~ Treatment + (1|Region/LocalityCode),
-                      family = poisson(link="log"))
+q1_poisson <- lme4::glmer(
+  data = modelData,
+  Quantity ~ Treatment * productivityIndex + (1 | Region / LocalityCode),
+  family = poisson(link = "log")
+)
+
+# summary(q1_poisson)
 ```
 
 ```{r}
@@ -804,8 +827,8 @@ Let's try a simple log-normal model
 
 ```{r}
 q1_lognorm <- lmer(data=modelData,
-               log(Quantity+1) ~ Treatment +(1|Region/LocalityCode))
-summary(q1_lognorm)
+               log(Quantity+1) ~ Treatment * productivityIndex +(1|Region/LocalityCode))
+# summary(q1_lognorm)
 ```
 
 ```{r}
@@ -833,6 +856,9 @@ Is the possion model overdispersed? If so, look into negative binomial.
 
 There are zeros in the data. Is that a mistake?
 
+
+
+## Tables
 When (if) the model is done, here is how you can get a nice summary table.
 
 ```{r}

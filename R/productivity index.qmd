@@ -197,14 +197,24 @@ Most sites are able to reach 25000 units of biomass so I will use that as the th
 #| fig.cap: "Productivity index based on the number of years to accumulate 25 000 biomass units. The most productive sites accumlated this bioamss in 2 year, and the least productive sites needed 12 years."
 dat_site <- dat_site |>
   group_by(LocalityCode) |>
-  mutate(lowestYear = case_when(
+  mutate(
+    lowestYear = case_when(
     Biomass_norm == 0 ~ yearsSinceStart),
-    lowestYear = max(lowestYear, na.rm=T)) |>
-  filter(Biomass_norm > 25000) |>
+    lowestYear = max(lowestYear, na.rm=T),
+    bigEnough = case_when(
+      Biomass_norm > 25000 ~ TRUE,
+      .default = FALSE)
+    ) |>  
+  filter(if(any(bigEnough== TRUE)) Biomass_norm > 25000 else TRUE) |>
   slice_min(Biomass_norm) |>
   ungroup() |>
-  mutate(elapsed = yearsSinceStart - lowestYear,
-         productivityIndex = min(elapsed)/elapsed)
+  mutate(
+    elapsed = case_when(
+      bigEnough == TRUE ~ yearsSinceStart - lowestYear,
+      bigEnough == FALSE ~ NA),
+    productivityIndex = case_when(
+      bigEnough == TRUE ~ min(elapsed, na.rm=T)/elapsed,
+      bigEnough == FALSE ~ 0.01))
 
 dat_site |>
   arrange(productivityIndex) |>
@@ -251,6 +261,7 @@ dat %>%
 Then I export the index @fig-productivity as a data file so that we can import merge it with the original dataset in the main analyses quarto file.
 
 ```{r}
+#| eval: false
 dat_site |>
   select(LocalityName, productivityIndex) |> 
   saveRDS("../data/productivityIndex.RDS")

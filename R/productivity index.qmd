@@ -1,0 +1,273 @@
+---
+title: "Productivity index"
+format: html
+editor: visual
+---
+
+```{r setup, echo=F, warning=FALSE, message=F}
+library(readxl)
+library(knitr)
+library(tidyverse)
+```
+
+## Productivity Index
+
+::: {.callout-note icon="false"}
+## Pay Attention
+
+OBS, note that this script needs to be re-run when we have the updated start-up year from Hedmark and Akershus
+:::
+
+### Background and rationale
+
+Site productivity is very relevant predictor variable for our analyses. A productivity index was used in two previous papers:
+
+-   [Cervid Exclusion Alters Boreal Forest Properties with Little Cascading Impacts on Soils](https://link.springer.com/article/10.1007/s10021-017-0202-4?utm_source=getftr&utm_medium=getftr&utm_campaign=getftr_pilot)
+-   [Pervasive moose browsing in boreal forests alters successional trajectories by severely suppressing keystone species](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecs2.2458)
+
+The original index is based on the annual biomass increments inside the exclosures. The allometric models are published in the supplementary information in the first paper. The first paper only had the Trøndelag sites, and therefore it also was able to combine the annual biomass increment with the canopy cover values to get an even better index. The second paper included the Telemark sites, but there has not been calculated a productivity index for the Hedmark-Akershus sites yet.
+
+> **Goal** - To calculate a productivity index for the three regions.
+
+### Possible metrics {#metrics}
+
+A problem we face is that tree height is only recorded in height categories up to 3 m. All trees above 3 meters are grouped in the same height category (category 7). This means that as the trees grow much taller that 3 meters, the allometric models dont'twork and can not give us the above ground biomass. There are some possible solution to this:
+
+1.  Use only the first few years of data, before the trees have had time to get above 3 meter.
+
+2.  Build an index using the proportion of stems above 3 meters.
+
+3.  Use the allometric models to estimate above ground biomass per year and calculate the accumulated biomass over time. Chose a biomass threshold and estimate for each site how many year they use/need to accumalte this much biomass from the intial biomass at the start of the experiment.
+
+Option 1 is not great since we and up using very little of the time series, mayby just the first 3-5 years, and there could be other things than productivity that dictated biomass accumulation at this early successional stage (e.g. recruitment).
+
+Option 2 is also not great because height growth is not as correlated to primary production as biomass accumulation, and it is much more dependent on species differences and light conditions. Also, the ratio of large vs small trees is not only affected by the recruitment of small trees to become large trees, but also the continous recruitment of small trees.
+
+Option 3 is perhaps a more sensible option.
+
+## Allometric models {#allo}
+
+Here are the allometric models I ill use.
+
+```{r EM2, echo=FALSE, fig.cap="A screenshot of table EM2 from paper one above."}
+knitr::include_graphics("../images/tableEM2.PNG")
+```
+
+Below I make R functions for each of the allometric models in the table above.
+
+```{r}
+allo_birch   <- function(hgt) {0.170274*hgt + 0.010018*hgt ^2}
+allo_pine    <- function(hgt) {0.0149667*hgt^2}
+allo_rowan   <- function(hgt) {0.0053962*hgt^2}
+allo_spruce  <- function(hgt) {0.038068*hgt^2}
+```
+
+## Height distribution over time
+
+The number of stems in each height class (1-7) is recorded in the field, annually, since the start of the experiment. Height class 7 include all trees above 3 meters. We therefore have no precice height data for the tree community as more and more trees grow above 3 meters. First we will therefore explore the data and see how many years of data we can calculate the productivity index with.
+
+```{r}
+dat <- read_excel("../data/DensityAnno2023.xlsx") |>
+  mutate(yearsSinceStart = case_when(
+    # Check !! Hedmark Akershus sites were initiated at different times
+    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
+    Region == "SUSTHERB Telemark" ~ Year -2009,
+    Region == "SUSTHERB Trondelag" ~ Year -2008)) %>%
+  filter(Treatment == "Unbrowsed",
+         EngelskNavn != "Empty sample",
+         HeightClass >0) %>%
+  mutate(heightGroup = case_when(
+    HeightClass == 7 ~ "large",
+    HeightClass < 7 ~ "small"),
+  # add tree height in cm as the central value for each height category
+    height_cm = case_when(
+      HeightClass == 1 ~ 25,
+      HeightClass == 2 ~ 75,
+      HeightClass == 3 ~ 125,
+      HeightClass == 4 ~ 175,
+      HeightClass == 5 ~ 225,
+      HeightClass == 6 ~ 275,
+      HeightClass == 7 ~ 325)
+    )
+  
+```
+
+```{r fig-regions}
+#| fig.cap: "Fraction of trees > 3 meters increase over time for all three regions, but quicker in Hedmark-Akershus."
+#| code-fold: true
+dat %>%
+  summarise(.by = c(Region, yearsSinceStart, heightGroup),
+            sum = sum(Quantity)) %>%
+  pivot_wider(names_from = heightGroup, 
+              values_from = sum) %>%
+  mutate(fractionLargeTrees = large/(large+small)) %>%
+  ggplot()+
+  geom_line(aes(x = yearsSinceStart, y = fractionLargeTrees, colour = Region),
+            linewidth=1.5)
+```
+
+```{r fig-species}
+#| fig.cap: "Same figure as above, but with one line per taxa."
+#| code-fold: true
+#Heres a figure like the one above, but one line per species:
+dat %>%
+  summarise(.by = c(Region, yearsSinceStart, Taxa, heightGroup),
+            sum = sum(Quantity)) %>%
+  pivot_wider(names_from = heightGroup, 
+              values_from = sum) %>%
+  mutate(fractionLargeTrees = large/(large+small)) %>%
+  ggplot()+
+  geom_line(aes(x = yearsSinceStart, y = fractionLargeTrees, colour = Taxa),
+            linewidth=1.5)+
+  facet_grid(rows=vars(Region))
+
+```
+
+The fraction of trees in height category 7 varies with region ( @fig-regions) and with species (@fig-species). This is the metric described as [option 2](#metrics) and is not very suited as an index, but I still calculate it [below](#large).
+
+## Time to reach threshold biomass
+
+Let's calculate the above ground biomass for each year and each site. First just get the biomass for each species and each circle.
+
+```{r}
+dat <- dat |>
+  mutate(biomass = case_when(
+    Taxa == "Picea abies" ~ allo_spruce(height_cm),
+    Taxa %in% c("Betula pubescens", 
+                "Betula pendula",
+                "Quercus sp.",
+                "Alnus incana",
+                "Salix caprea",
+                "Sambucus racemosa") ~ allo_birch(height_cm),
+    Taxa %in% c("Pinus sylvestris",
+                "Juniperus communis") ~ allo_pine(height_cm),
+    Taxa %in% c("Sorbus aucuparia",
+                "Populus tremula") ~ allo_rowan(height_cm),
+    .default = NA),
+    biomass = biomass * Quantity)
+```
+
+```{r fig-dist-biomass}
+#| code-fold: true
+#| fig.cap: "Variation in total biomass. Each point is a 2 m radii circle. Units unknown."
+plot(dat$biomass, ylab = "Biomass")
+```
+
+Then we can sum the biomass across all species at each site.
+
+```{r fig-biomassInc}
+#| fig.cap: "Biomass increments over time for each site."
+dat_site <- dat |>
+  group_by(Region, LocalityName, LocalityCode, yearsSinceStart) |>
+  summarise(Biomass = sum(biomass))
+  
+dat_site |>
+  ggplot() +
+  geom_line(aes(x = yearsSinceStart, y = Biomass, 
+                group = LocalityCode,
+                color = Region))
+```
+
+We see in @fig-biomassInc that biomass accumulated relatively linearly for Telemakr and Trøndelag, but that for the more productive region Hedmark-Akerhus we see a plateu caused by more trees going into the 7th height category where all trees are said to be 325 cm even if they are much taller in reality.
+
+It is maybe an issue that some sites in Hedmark-Akershus had more biomass at the start of the experiemet than some other sites have at the end. This could simply be because the start-up year is wrong for these sites in Hedmark-Akershus. In any case, for this exercise I can normalise each time series against the start value.
+
+```{r fig-norm}
+#| fig.cap: "Same as previous figure, but with normalised biomass variable."
+#| code-fold: true
+dat_site <- dat_site |>
+  ungroup() |>
+  group_by(LocalityCode) |>
+  mutate(
+    min_biomass = min(Biomass),
+    Biomass_norm = Biomass - min(Biomass)) |>
+  ungroup()
+
+dat_site |>
+  ggplot() +
+  geom_line(aes(x = yearsSinceStart, y = Biomass_norm, 
+                group = LocalityCode,
+                color = Region))
+```
+
+Most sites are able to reach 25000 units of biomass so I will use that as the threshold value.
+
+```{r fig-productivity}
+#| code-fold: true
+#| fig.cap: "Productivity index based on the number of years to accumulate 25 000 biomass units. The most productive sites accumlated this bioamss in 2 year, and the least productive sites needed 12 years."
+dat_site <- dat_site |>
+  group_by(LocalityCode) |>
+  mutate(lowestYear = case_when(
+    Biomass_norm == 0 ~ yearsSinceStart),
+    lowestYear = max(lowestYear, na.rm=T)) |>
+  filter(Biomass_norm > 25000) |>
+  slice_min(Biomass_norm) |>
+  ungroup() |>
+  mutate(elapsed = yearsSinceStart - lowestYear,
+         productivityIndex = min(elapsed)/elapsed)
+
+dat_site |>
+  arrange(productivityIndex) |>
+  mutate(LocalityCode = fct_inorder(LocalityCode)) |>
+  ggplot() +
+  geom_bar(aes(x = LocalityCode, y = productivityIndex, fill = Region),
+           stat = "identity")+
+  coord_flip()
+```
+
+## Index based on proportion of large trees {#large}
+
+I will try and use the fraction of large trees as the productivity index (is in option 2). This is probably not a good metric to use, but I will look at it anyhow. I can extract the fraction at year 11, when we have data from all regions. With this approach we don't actually need the [allometric models](#allo).
+
+```{r bar, fig.height= 14, fig.cap="Productivity index for all SUSTHERB moose sites based on the fraction of trees that are above 3 mteres 11 years into the experiement"}
+#| code-fold: true
+dat %>%
+  mutate(yearsSinceStart = case_when(
+    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
+    Region == "SUSTHERB Telemark" ~ Year -2009,
+    Region == "SUSTHERB Trondelag" ~ Year -2008)) %>%
+  filter(Treatment == "Unbrowsed",
+         yearsSinceStart == 11) %>%
+  mutate(heightGroup = case_when(
+    HeightClass == 7 ~ "large",
+    HeightClass < 7 ~ "small"
+  )) %>%
+  summarise(.by = c(Region, LocalityCode, yearsSinceStart, heightGroup),
+            sum = sum(Quantity)) %>%
+  pivot_wider(names_from = heightGroup, 
+              values_from = sum) %>%
+  mutate(fractionLargeTrees = large/(large+small),
+         productivityIndex = fractionLargeTrees/max(fractionLargeTrees)) %>%
+  arrange(productivityIndex) %>%
+  mutate(LocalityCode = fct_inorder(LocalityCode)) %>%
+  ggplot()+
+  geom_bar(aes(x = LocalityCode, y = productivityIndex, fill = Region),
+           stat = "identity")+
+  coord_flip()
+```
+
+## Export data file
+
+Then I export the index @fig-productivity as a data file so that we can import merge it with the original dataset in the main analyses quarto file.
+
+```{r}
+dat_site |>
+  select(LocalityName, productivityIndex) |> 
+  saveRDS("../data/productivityIndex.RDS")
+
+  
+
+```
+
+## How to use the index
+
+Here is how you can get the productivity index into the full, original tree density data set to be used in analyses:
+
+```{r}
+# read data
+productivityIndex <- readRDS("../data/productivityIndex.RDS")
+
+# assuming 'dat' is the name of the full density data set, use this code to paste the productivity index values into it
+dat2 <- dat %>%
+  left_join(productivityIndex, by=join_by(LocalityName))
+```

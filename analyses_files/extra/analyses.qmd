@@ -34,22 +34,23 @@ Importing productivity index. See `productivity index.qmd`.
 productivityIndex <- readRDS("data/productivityIndex.RDS")
 
 Data <- Data %>%
-  left_join(productivityIndex, by=join_by(LocalityName)) |>
-  filter(
-    EngelskNavn != "Empty sample",
-    HeightClass >0,
-    Taxa != "0-Not Determined") %>%
-  mutate(
-    # add tree height in cm as the central value for each height category
-    height_cm = case_when(
-      HeightClass == 1 ~ 25,
-      HeightClass == 2 ~ 75,
-      HeightClass == 3 ~ 125,
-      HeightClass == 4 ~ 175,
-      HeightClass == 5 ~ 225,
-      HeightClass == 6 ~ 275,
-      HeightClass == 7 ~ 325)
-    )
+  left_join(productivityIndex, by=join_by(LocalityName))
+```
+
+Gunnar: Fjern rader med quantity == null (0).
+
+Jeg tror vi må legge til rader med nuller der en art ikke er registrert. Anders: fix.
+
+```{r}
+Data <- Data |>
+    complete(Region,
+             LocalityName,
+             LocalityCode,
+             Plot,
+             Treatment,
+             Year,
+             Taxa,
+             fill = list(Quantity = 0))
 ```
 
 Subset rows (20) and columns (10)
@@ -60,52 +61,7 @@ DT::datatable(Data[1:20,1:10])
 
 ## Clean data
 
-Obs - the Plot variable is used slightly differently between sites (but consistently within sites)
-
-```{r}
-Data |>
-  count(Plot)
-
-
-sum(is.na(Data$Plot))
-```
-
-I will just conform these.
-
-```{r}
-Data <- Data |>
-  mutate(Plot = case_when(
-    Plot == "NW" ~ "OV",
-    Plot == "NE" ~ "OH",
-    Plot == "SW" ~ "NV",
-    Plot == "SE" ~ "NH",
-    .default = Plot
-  ))
-```
-
-```{r}
-Data |>
-  count(Plot)
-```
-
-Expanding the data set and adding rows for with quantity equal to zero for cases where a taxa was not found. Note that when I add a this zero, the height category and height_cm column is filled with NAs.
-
-```{r}
-Data <- Data |>
-    complete( 
-      Taxa,
-        nesting(
-        Region,
-        LocalityName,
-        productivityIndex,
-        LocalityCode,
-        Plot,
-        Treatment,
-        Year
-        ),
-      fill = list(Quantity = 0)) 
-
-```
+...
 
 ## Explore data
 
@@ -120,6 +76,8 @@ Three regions included: total of 34911 rows
 ```{r}
 table(Data$Year, Data$Plot)
 ```
+
+Plot NW, NE, SW, SE referes to plot names in Hedmark-Akershus and corresponds to OV (NW), OH (NE), NV (SW), NH (SE) in the two other regions.
 
 ## Figures
 
@@ -746,7 +704,8 @@ We will not look at the temporal trends, but rather focus on the last year. The 
 ```{r}
 Data <- Data %>%
   mutate(yearsSinceStart = case_when(
-    # Check !! Hedmark Akershus sites were initiated at different times: 2007 (M1,M2,M3), 2010 (DH,SSA,SD,TH,HP,SSB), 2011 (STSKN,FK,JCD,IAA,DD,OL,SK)
+    # Check !! Hedmark Akershus sites were initiated at different times
+    # 2007 (M1,M2,M3), 2010 (DH,SSA,SD,TH,HP,SS), 2011 (STSKN, FK,JCD,IAA,DD,OL,SK)
     Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
     Region == "SUSTHERB Telemark" ~ Year -2009,
     Region == "SUSTHERB Trondelag" ~ Year -2008
@@ -757,7 +716,7 @@ Data <- Data %>%
 table(Data$yearsSinceStart, Data$Region)
 ```
 
-It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined.
+It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined. First we filter out sites that have been thinned (3 in Trøndelag) or disturbed (1 in Hedmark).
 
 ```{r}
 modelData <- Data %>%
@@ -791,7 +750,7 @@ One hypothesis is about the quantity of large trees above browsing height. Let's
 
 ```{r}
 birchData7 <- birchData %>%
-  filter(HeightClass ==7 | is.na(HeightClass))
+  filter(HeightClass ==7)
 ```
 
 ### Q1 - Stem density all species
@@ -872,7 +831,7 @@ qqline(resid(q1_lognorm))
 
 None are very good, but perhaps the gamma model was best?
 
-Are the residulas better if we look at the for the three regions separately?
+Are the residulas better if we look at the for the three regions seperately?
 
 ```{r}
 temp <- modelData %>%
@@ -890,102 +849,12 @@ Is the possion model overdispersed? If so, look into negative binomial.
 
 There are zeros in the data. Is that a mistake?
 
-We could try and aggregate the data first, before modelling.
-
-```{r}
-modelData2 <- modelData |>
-  group_by(Region, LocalityName, LocalityCode, Treatment, productivityIndex) |>
-  summarise(response = sum(Quantity))
-```
-
-Trying a log normal model on the aggregated data set
-
-```{r}
-q1_a2 <- lme4::lmer(data = modelData2,
-  log(response+1) ~ Treatment * productivityIndex + (1|Region))
-summary(q1_a2)
-qqnorm(resid(q1_a2))
-qqline(resid(q1_a2))
-```
-
-Better. Perhaps a gamma or poisson model would be even better still. First Poisson
-
-```{r}
-q1_poisson2 <- lme4::lmer(data = modelData2,
-  response ~ Treatment * productivityIndex + (1|Region))
-  family = poisson(link = "log")
-
-summary(q1_poisson2)
-qqnorm(resid(q1_poisson2))
-qqline(resid(q1_poisson2))
-```
-
-Not a good fit. Try Gamma instead (with a log link). Also tried inverse
-
-```{r}
-q1_gamma2 <- lme4::glmer(
-  data = modelData2,
-  response + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_gamma2)
-qqnorm(resid(q1_gamma2))
-qqline(resid(q1_gamma2))
-```
-
-By species. First pine
-
-```{r}
-pineData <- modelData %>%
-  filter(Taxa == "Pinus sylvestris")
-q1_PSgamma2 <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_PSgamma2)
-qqnorm(resid(q1_PSgamma2))
-qqline(resid(q1_PSgamma2))
-#pineData <- modelData %>%
-  
-
-```
-
-Not sure abouit the output here. Same for birch and rowan. Something to do with the response variable (Quantity)??
-
-```{r}
-BirchData <- modelData %>%
-  filter(Taxa %in% c("Betula pubescens", "Betula pendula"))
-q1_BPgamma2 <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_BPgamma2)
-qqnorm(resid(q1_BPgamma2))
-qqline(resid(q1_BPgamma2))
-#pineData <- modelData %>%
-```
-
-```{r}
-sorbusData <- modelData %>%
-  filter(Taxa == "Sorbus aucuparia")
-q1_SAgamma <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_SAgamma)
-qqnorm(resid(q1_SAgamma))
-qqline(resid(q1_SAgamma))
-```
-
 ## Tables
 
 When (if) the model is done, here is how you can get a nice summary table.
 
 ```{r}
-stargazer::stargazer(q1_gamma2, 
+stargazer::stargazer(q1_gamma, 
                      type = "text", # change to latex to get it directly into a manuscript
                      digits = 3,
                      star.cutoffs = c(0.05, 0.01, 0.001),

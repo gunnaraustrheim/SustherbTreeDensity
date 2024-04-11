@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.543">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -67,15 +67,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="analyses_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="analyses_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="analyses_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="analyses_files/libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+
+<script src="analyses_files/libs/htmlwidgets-1.6.3/htmlwidgets.js"></script>
 <link href="analyses_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
-<script src="analyses_files/libs/datatables-binding-0.29/datatables.js"></script>
+<script src="analyses_files/libs/datatables-binding-0.30/datatables.js"></script>
 <script src="analyses_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <link href="analyses_files/libs/dt-core-1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="analyses_files/libs/dt-core-1.13.4/css/jquery.dataTables.extra.css" rel="stylesheet">
 <script src="analyses_files/libs/dt-core-1.13.4/js/jquery.dataTables.min.js"></script>
-<link href="analyses_files/libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
-<script src="analyses_files/libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="analyses_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="analyses_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
 
 
 </head>
@@ -101,9 +102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
-
 </header>
-
 
 <section id="analyses-tree-density" class="level2">
 <h2 class="anchored" data-anchor-id="analyses-tree-density">Analyses Tree Density</h2>
@@ -115,16 +114,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>-- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
-v dplyr     1.1.3     v readr     2.1.4
-v forcats   1.0.0     v stringr   1.5.0
-v ggplot2   3.4.4     v tibble    3.2.1
-v lubridate 1.9.2     v tidyr     1.3.0
-v purrr     1.0.2     
--- Conflicts ------------------------------------------ tidyverse_conflicts() --
-x dplyr::filter() masks stats::filter()
-x dplyr::lag()    masks stats::lag()
-i Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
@@ -171,19 +170,20 @@ The following objects are masked from 'package:tidyr':
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>DT<span class="sc">::</span><span class="fu">datatable</span>(Data[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-8464c80224001341a824" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8464c80224001341a824">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus"],["Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing"],["DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB"],["NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE"],["Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed"],[2013,2013,2013,2013,2013,2014,2014,2014,2014,2014,2015,2015,2015,2015,2015,2015,2016,2016,2016,2016],["Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Betula pubescens","Betula pubescens"],["bjørk","bjørk","gran","furu","rogn","bjørk","bjørk","gran","furu","rogn","bjørk","bjørk","gran","furu","furu","rogn","bjørk","bjørk","bjørk","bjørk"],["Birch","Birch","Spruce","Pine","Rowan","Birch","Birch","Spruce","Pine","Rowan","Birch","Birch","Spruce","Pine","Pine","Rowan","Birch","Birch","Birch","Birch"],[1,2,3,2,1,1,2,3,2,1,1,2,3,1,3,1,1,2,3,4]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Region<\/th>\n      <th>LocalityName<\/th>\n      <th>LocalityCode<\/th>\n      <th>Plot<\/th>\n      <th>Treatment<\/th>\n      <th>Year<\/th>\n      <th>Taxa<\/th>\n      <th>NorskNavn<\/th>\n      <th>EngelskNavn<\/th>\n      <th>HeightClass<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[6,10]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+
+<div class="datatables html-widget html-fill-item" id="htmlwidget-b95874c26be68c63e97f" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-b95874c26be68c63e97f">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus","SUSTHERB Hedmark-Akershus"],["Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing","Hedmark | Didrik | Winter browsing"],["DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB","DHB"],["NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE","NE"],["Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed","Browsed"],[2013,2013,2013,2013,2013,2014,2014,2014,2014,2014,2015,2015,2015,2015,2015,2015,2016,2016,2016,2016],["Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Picea abies","Pinus sylvestris","Pinus sylvestris","Sorbus aucuparia","Betula pubescens","Betula pubescens","Betula pubescens","Betula pubescens"],["bjørk","bjørk","gran","furu","rogn","bjørk","bjørk","gran","furu","rogn","bjørk","bjørk","gran","furu","furu","rogn","bjørk","bjørk","bjørk","bjørk"],["Birch","Birch","Spruce","Pine","Rowan","Birch","Birch","Spruce","Pine","Rowan","Birch","Birch","Spruce","Pine","Pine","Rowan","Birch","Birch","Birch","Birch"],[1,2,3,2,1,1,2,3,2,1,1,2,3,1,3,1,1,2,3,4]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Region<\/th>\n      <th>LocalityName<\/th>\n      <th>LocalityCode<\/th>\n      <th>Plot<\/th>\n      <th>Treatment<\/th>\n      <th>Year<\/th>\n      <th>Taxa<\/th>\n      <th>NorskNavn<\/th>\n      <th>EngelskNavn<\/th>\n      <th>HeightClass<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[6,10]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 </section>
 <section id="clean-data" class="level2">
 <h2 class="anchored" data-anchor-id="clean-data">Clean data</h2>
-<p>Obs - the Plot variable is used slightlu differently between sites (but consistently within sites)</p>
+<p>Obs - the Plot variable is used slightly differently between sites (but consistently within sites)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Data <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 8 x 2
+<pre><code># A tibble: 8 × 2
   Plot      n
   &lt;chr&gt; &lt;int&gt;
 1 NE     2905
@@ -215,7 +215,7 @@ The following objects are masked from 'package:tidyr':
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Data <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 2
+<pre><code># A tibble: 4 × 2
   Plot      n
   &lt;chr&gt; &lt;int&gt;
 1 NH     8948
@@ -298,11 +298,7 @@ SUSTHERB Hedmark-Akershus         SUSTHERB Telemark        SUSTHERB Trondelag
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -324,11 +320,7 @@ SUSTHERB Hedmark-Akershus         SUSTHERB Telemark        SUSTHERB Trondelag
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -350,11 +342,7 @@ SUSTHERB Hedmark-Akershus         SUSTHERB Telemark        SUSTHERB Trondelag
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -376,11 +364,7 @@ SUSTHERB Hedmark-Akershus         SUSTHERB Telemark        SUSTHERB Trondelag
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -402,11 +386,7 @@ SUSTHERB Hedmark-Akershus         SUSTHERB Telemark        SUSTHERB Trondelag
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We can look at species differences, and at the same time reduce the amount of points by taking the mean per location and treatement.</p>
@@ -431,11 +411,7 @@ override using the `.groups` argument.
 `geom_smooth()` using formula = 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>In the figure above we see little obvious differences in birch, pine and spruce, but large differences in rowan.</p>
@@ -456,11 +432,7 @@ override using the `.groups` argument.
 override using the `.groups` argument.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We could look at the same thing, but for the smalles height class</p>
@@ -481,11 +453,7 @@ override using the `.groups` argument.</code></pre>
 override using the `.groups` argument.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -499,11 +467,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)<span class="sc">+</span></span>
 <span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>Taxa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -520,11 +484,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>Year, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
 <span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -541,11 +501,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>Year, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
 <span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -562,11 +518,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>Year, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
 <span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -583,11 +535,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>Year, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
 <span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Gunnars plot 0712</p>
@@ -604,11 +552,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Pine at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance from 2017.No temporal trends in UB</p>
@@ -625,11 +569,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Spruce at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance from 2016, but more in B vs UB</p>
@@ -646,11 +586,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Birch at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance in B from 2013.Less temporal trends in UB</p>
@@ -667,11 +603,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Rowan at plot level (circles) in Telemark: low spread, but no reduction of plots in B and UB</p>
@@ -688,11 +620,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in B from 2013 and in UB</p>
@@ -709,11 +637,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Pine trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in B and in UB from 2013</p>
@@ -730,11 +654,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Spruce trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in UB from 2013.Less temporal trends in B</p>
@@ -751,11 +671,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Birch trees at plot level (circles) in Trondelag: low spread, but no reduction of plots with high abundance in B from 2013.Increasing temporal trends in UB</p>
@@ -772,11 +688,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of rowan trees at plot level (circles) in Trondelag: low spread, but some reduction of plots with high abundance in B and UB</p>
@@ -793,11 +705,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of pine trees at plot level (circles) in Telemark: low spread,</p>
@@ -814,11 +722,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of trees at plot level (circles) across all regions: low spread, but some reduction of plots with high abundance in B and UB from 2013</p>
@@ -835,11 +739,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of spruce trees at plot level (circles) across all regions: low spread, but some reduction of plots with high abundance in B and UB</p>
@@ -856,11 +756,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of birch trees at plot level (circles) across all regions: low spread, no reduction of plots with high abundance in B and UB</p>
@@ -877,11 +773,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of rowan trees at plot level (circles) across all regions: low spread, no reduction of plots with high abundance in B and UB</p>
@@ -899,11 +791,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -920,11 +808,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -941,11 +825,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -962,11 +842,7 @@ override using the `.groups` argument.</code></pre>
 <span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -988,11 +864,7 @@ Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of birch trees at plot level (circles) in Trøndelag at harvest class 7: increased in UB from 2018 and to lesser extent in B from 2019</p>
@@ -1010,11 +882,7 @@ Groups with fewer than two data points have been dropped.</code></pre>
 <span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of spruce trees at plot level (circles) in Trøndelag at harvest class 7: increased in B from 2016 and to lesser extent in UB from 2019</p>
@@ -1035,11 +903,7 @@ Groups with fewer than two data points have been dropped.</code></pre>
 <pre><code>Warning: Groups with fewer than two data points have been dropped.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of Rowan trees at plot level (circles) in Trøndelag at harvest class 7: increased in UB from 2015. No in B</p>
@@ -1068,11 +932,7 @@ Caused by error in `$&lt;-.data.frame`:
 ! replacement has 1 row, data has 0</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -1089,11 +949,7 @@ Caused by error in `$&lt;-.data.frame`:
 <span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Number of rowan trees at plot level (circles) in Trøndelag at harvest class 1:</p>
@@ -1111,11 +967,7 @@ Caused by error in `$&lt;-.data.frame`:
 <span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free"</span>)<span class="sc">+</span></span>
 <span id="cb69-12"><a href="#cb69-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -1141,11 +993,7 @@ Groups with fewer than two data points have been dropped.
 Groups with fewer than two data points have been dropped.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -1158,7 +1006,7 @@ Groups with fewer than two data points have been dropped.</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>Data <span class="ot">&lt;-</span> Data <span class="sc">%&gt;%</span></span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">yearsSinceStart =</span> <span class="fu">case_when</span>(</span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check !! Hedmark Akershus sites were initiated at different times</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check !! Hedmark Akershus sites were initiated at different times: 2007 (M1,M2,M3), 2010 (DH,SSA,SD,TH,HP,SSB), 2011 (STSKN,FK,JCD,IAA,DD,OL,SK)</span></span>
 <span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    Region <span class="sc">==</span> <span class="st">"SUSTHERB Hedmark-Akershus"</span> <span class="sc">~</span> Year <span class="sc">-</span><span class="dv">2012</span>,</span>
 <span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    Region <span class="sc">==</span> <span class="st">"SUSTHERB Telemark"</span> <span class="sc">~</span> Year <span class="sc">-</span><span class="dv">2009</span>,</span>
 <span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    Region <span class="sc">==</span> <span class="st">"SUSTHERB Trondelag"</span> <span class="sc">~</span> Year <span class="sc">-</span><span class="dv">2008</span></span>
@@ -1263,22 +1111,14 @@ TrtmntUnb:I  0.424 -0.786 -0.656</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(q1_a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_a))</span>
 <span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_a))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Not good.</p>
@@ -1286,11 +1126,7 @@ TrtmntUnb:I  0.424 -0.786 -0.656</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(modelData<span class="sc">$</span>Quantity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-57-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-57-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -1324,10 +1160,10 @@ Number of obs: 5842, groups:  LocalityCode:Region, 86; Region, 3
 
 Fixed effects:
                                      Estimate Std. Error t value Pr(&gt;|z|)    
-(Intercept)                            0.9031     0.1025   8.809  &lt; 2e-16 ***
+(Intercept)                            0.9031     0.1025   8.810  &lt; 2e-16 ***
 TreatmentUnbrowsed                     0.3628     0.1046   3.467 0.000527 ***
-productivityIndex                     -0.5270     0.2025  -2.603 0.009253 ** 
-TreatmentUnbrowsed:productivityIndex  -0.6484     0.2583  -2.511 0.012053 *  
+productivityIndex                     -0.5270     0.2025  -2.603 0.009239 ** 
+TreatmentUnbrowsed:productivityIndex  -0.6484     0.2582  -2.511 0.012044 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1342,11 +1178,7 @@ TrtmntUnb:I  0.370 -0.796 -0.604</code></pre>
 <div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_gamma))</span>
 <span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_gamma))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -1362,11 +1194,7 @@ TrtmntUnb:I  0.370 -0.796 -0.604</code></pre>
 <div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_poisson))</span>
 <span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_poisson))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-61-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-61-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Poisson no better.</p>
@@ -1380,11 +1208,7 @@ TrtmntUnb:I  0.370 -0.796 -0.604</code></pre>
 <div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_lognorm))</span>
 <span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_lognorm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-63-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-63-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>None are very good, but perhaps the gamma model was best?</p>
@@ -1398,11 +1222,7 @@ TrtmntUnb:I  0.370 -0.796 -0.604</code></pre>
 <span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(temp<span class="sc">$</span>gammaresids[temp<span class="sc">$</span>Region<span class="sc">==</span><span class="st">"SUSTHERB Telemark"</span>])</span>
 <span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(temp<span class="sc">$</span>gammaresids[temp<span class="sc">$</span>Region<span class="sc">==</span><span class="st">"SUSTHERB Trondelag"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-64-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-64-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>The three regions are just as bad.</p>
@@ -1422,86 +1242,353 @@ TrtmntUnb:I  0.370 -0.796 -0.604</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>q1_a2 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(<span class="at">data =</span> modelData2,</span>
 <span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(response<span class="sc">+</span><span class="dv">1</span>) <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Region))</span>
-<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_a2))</span>
-<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_a2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_a2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log(response + 1) ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData2
+
+REML criterion at convergence: 141.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.8726 -0.4213 -0.0557  0.4010  3.4253 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept) 0.06721  0.2592  
+ Residual             0.27905  0.5283  
+Number of obs: 86, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value
+(Intercept)                            4.1068     0.2028  20.251
+TreatmentUnbrowsed                    -0.4106     0.1839  -2.232
+productivityIndex                      1.1894     0.3660   3.250
+TreatmentUnbrowsed:productivityIndex   0.8863     0.4750   1.866
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.453              
+prdctvtyInd -0.544  0.509       
+TrtmntUnb:I  0.356 -0.785 -0.649</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_a2))</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_a2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-66-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<p><img src="analyses_files/figure-html/unnamed-chunk-66-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Better. Perhaps a gamma or poisson model would be even better still. First Poisson</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>q1_poisson2 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(<span class="at">data =</span> modelData2,</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>  response <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Region))</span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>  family <span class="ot">=</span> <span class="fu">poisson</span>(<span class="at">link =</span> <span class="st">"log"</span>)</span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-5"><a href="#cb97-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_poisson2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: response ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData2
+
+REML criterion at convergence: 925.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.5578 -0.5072 -0.1831  0.2173  5.6226 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept)  568     23.83   
+ Residual             4018     63.39   
+Number of obs: 86, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value
+(Intercept)                             60.30      21.36   2.823
+TreatmentUnbrowsed                     -20.00      22.07  -0.906
+productivityIndex                      131.84      43.55   3.028
+TreatmentUnbrowsed:productivityIndex    52.15      57.00   0.915
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.517              
+prdctvtyInd -0.616  0.514       
+TrtmntUnb:I  0.406 -0.785 -0.654</code></pre>
 </div>
-<p>Better. Perhaps a gamma or poisson model would be even better still.</p>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_poisson2))</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_poisson2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="analyses_files/figure-html/unnamed-chunk-67-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Not a good fit. Try Gamma instead (with a log link). Also tried inverse</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>q1_gamma2 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> modelData2,</span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>  response <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Region),</span>
+<span id="cb100-4"><a href="#cb100-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>)</span>
+<span id="cb100-5"><a href="#cb100-5" aria-hidden="true" tabindex="-1"></a>) <span class="co"># I tried log and inverse link functions as well.</span></span>
+<span id="cb100-6"><a href="#cb100-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_gamma2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: Gamma  ( log )
+Formula: response + 0.1 ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData2
+
+     AIC      BIC   logLik deviance df.resid 
+   913.0    927.7   -450.5    901.0       80 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.2148 -0.4570 -0.2436  0.1298  5.9923 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept) 0.05203  0.2281  
+ Residual             0.45834  0.6770  
+Number of obs: 86, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value Pr(&gt;|z|)    
+(Intercept)                            4.1968     0.2122  19.776  &lt; 2e-16 ***
+TreatmentUnbrowsed                    -0.3648     0.1888  -1.932 0.053304 .  
+productivityIndex                      1.2756     0.3561   3.582 0.000341 ***
+TreatmentUnbrowsed:productivityIndex   0.8225     0.4921   1.671 0.094649 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.381              
+prdctvtyInd -0.495  0.425       
+TrtmntUnb:I  0.292 -0.796 -0.569</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_gamma2))</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_gamma2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="analyses_files/figure-html/unnamed-chunk-68-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>By species. First pine</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>pineData <span class="ot">&lt;-</span> modelData <span class="sc">%&gt;%</span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Taxa <span class="sc">==</span> <span class="st">"Pinus sylvestris"</span>)</span>
+<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>q1_PSgamma2 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb103-4"><a href="#cb103-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> modelData,</span>
+<span id="cb103-5"><a href="#cb103-5" aria-hidden="true" tabindex="-1"></a>  Quantity <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Region),</span>
+<span id="cb103-6"><a href="#cb103-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>)</span>
+<span id="cb103-7"><a href="#cb103-7" aria-hidden="true" tabindex="-1"></a>) <span class="co"># I tried log and inverse link functions as well.</span></span>
+<span id="cb103-8"><a href="#cb103-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_PSgamma2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: Gamma  ( log )
+Formula: Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData
+
+     AIC      BIC   logLik deviance df.resid 
+ 14217.4  14257.5  -7102.7  14205.4     5836 
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-0.395 -0.381 -0.365  0.032 34.861 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept) 0.247    0.4969  
+ Residual             5.980    2.4453  
+Number of obs: 5842, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value Pr(&gt;|z|)    
+(Intercept)                           0.18604    0.12468   1.492    0.136    
+TreatmentUnbrowsed                   -0.32400    0.05992  -5.408 6.39e-08 ***
+productivityIndex                     0.89063    0.10981   8.111 5.04e-16 ***
+TreatmentUnbrowsed:productivityIndex  0.60430    0.14720   4.105 4.04e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.216              
+prdctvtyInd -0.275  0.442       
+TrtmntUnb:I  0.168 -0.799 -0.586</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_PSgamma2))</span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_PSgamma2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="analyses_files/figure-html/unnamed-chunk-69-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co">#pineData &lt;- modelData %&gt;%</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Not sure abouit the output here. Same for birch and rowan. Something to do with the response variable (Quantity)??</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>BirchData <span class="ot">&lt;-</span> modelData <span class="sc">%&gt;%</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Taxa <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Betula pubescens"</span>, <span class="st">"Betula pendula"</span>))</span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>q1_BPgamma2 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> modelData,</span>
+<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a>  Quantity <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Region),</span>
+<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>)</span>
+<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a>) <span class="co"># I tried log and inverse link functions as well.</span></span>
+<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_BPgamma2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: Gamma  ( log )
+Formula: Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData
+
+     AIC      BIC   logLik deviance df.resid 
+ 14217.4  14257.5  -7102.7  14205.4     5836 
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-0.395 -0.381 -0.365  0.032 34.861 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept) 0.247    0.4969  
+ Residual             5.980    2.4453  
+Number of obs: 5842, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value Pr(&gt;|z|)    
+(Intercept)                           0.18604    0.12468   1.492    0.136    
+TreatmentUnbrowsed                   -0.32400    0.05992  -5.408 6.39e-08 ***
+productivityIndex                     0.89063    0.10981   8.111 5.04e-16 ***
+TreatmentUnbrowsed:productivityIndex  0.60430    0.14720   4.105 4.04e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.216              
+prdctvtyInd -0.275  0.442       
+TrtmntUnb:I  0.168 -0.799 -0.586</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_BPgamma2))</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_BPgamma2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="analyses_files/figure-html/unnamed-chunk-70-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co">#pineData &lt;- modelData %&gt;%</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>sorbusData <span class="ot">&lt;-</span> modelData <span class="sc">%&gt;%</span></span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Taxa <span class="sc">==</span> <span class="st">"Sorbus aucuparia"</span>)</span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a>q1_SAgamma <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> modelData,</span>
+<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>  Quantity <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">~</span> Treatment <span class="sc">*</span> productivityIndex <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Region),</span>
+<span id="cb111-6"><a href="#cb111-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">Gamma</span>(<span class="at">link =</span> <span class="st">"log"</span>)</span>
+<span id="cb111-7"><a href="#cb111-7" aria-hidden="true" tabindex="-1"></a>) <span class="co"># I tried log and inverse link functions as well.</span></span>
+<span id="cb111-8"><a href="#cb111-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(q1_SAgamma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: Gamma  ( log )
+Formula: Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region)
+   Data: modelData
+
+     AIC      BIC   logLik deviance df.resid 
+ 14217.4  14257.5  -7102.7  14205.4     5836 
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-0.395 -0.381 -0.365  0.032 34.861 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Region   (Intercept) 0.247    0.4969  
+ Residual             5.980    2.4453  
+Number of obs: 5842, groups:  Region, 3
+
+Fixed effects:
+                                     Estimate Std. Error t value Pr(&gt;|z|)    
+(Intercept)                           0.18604    0.12468   1.492    0.136    
+TreatmentUnbrowsed                   -0.32400    0.05992  -5.408 6.39e-08 ***
+productivityIndex                     0.89063    0.10981   8.111 5.04e-16 ***
+TreatmentUnbrowsed:productivityIndex  0.60430    0.14720   4.105 4.04e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnU prdctI
+TrtmntUnbrw -0.216              
+prdctvtyInd -0.275  0.442       
+TrtmntUnb:I  0.168 -0.799 -0.586</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(q1_SAgamma))</span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(q1_SAgamma))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="analyses_files/figure-html/unnamed-chunk-71-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 </section>
 </section>
 <section id="tables" class="level2">
 <h2 class="anchored" data-anchor-id="tables">Tables</h2>
 <p>When (if) the model is done, here is how you can get a nice summary table.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>stargazer<span class="sc">::</span><span class="fu">stargazer</span>(q1_gamma, </span>
-<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">type =</span> <span class="st">"text"</span>, <span class="co"># change to latex to get it directly into a manuscript</span></span>
-<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
-<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">digit.separator =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>stargazer<span class="sc">::</span><span class="fu">stargazer</span>(q1_gamma2, </span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">type =</span> <span class="st">"text"</span>, <span class="co"># change to latex to get it directly into a manuscript</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
+<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">digit.separator =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 ==================================================================
                                           Dependent variable:     
                                      -----------------------------
-                                            Quantity + 0.1        
+                                            response + 0.1        
 ------------------------------------------------------------------
-TreatmentUnbrowsed                             0.363***           
-                                                (0.105)           
+TreatmentUnbrowsed                              -0.365            
+                                                (0.189)           
                                                                   
-productivityIndex                              -0.527**           
-                                                (0.203)           
+productivityIndex                              1.276***           
+                                                (0.356)           
                                                                   
-TreatmentUnbrowsed:productivityIndex            -0.648*           
-                                                (0.258)           
+TreatmentUnbrowsed:productivityIndex             0.823            
+                                                (0.492)           
                                                                   
-Constant                                       0.903***           
-                                                (0.103)           
+Constant                                       4.197***           
+                                                (0.212)           
                                                                   
 ------------------------------------------------------------------
-Observations                                     5842             
-Log Likelihood                                 -6930.506          
-Akaike Inf. Crit.                              13875.010          
-Bayesian Inf. Crit.                            13921.720          
+Observations                                      86              
+Log Likelihood                                 -450.498           
+Akaike Inf. Crit.                               912.996           
+Bayesian Inf. Crit.                             927.723           
 ==================================================================
 Note:                                *p&lt;0.05; **p&lt;0.01; ***p&lt;0.001</code></pre>
 </div>
 </div>
 <p>Here is one way to visualise the treatment effect:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>modelData <span class="sc">%&gt;%</span></span>
-<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">q =</span> <span class="fu">sum</span>(Quantity), <span class="at">.by=</span> <span class="fu">c</span>(Region, LocalityName, Treatment)) <span class="sc">%&gt;%</span></span>
-<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Treatment,</span>
-<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> q,</span>
-<span id="cb97-5"><a href="#cb97-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_fill =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb97-6"><a href="#cb97-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">effect =</span> Unbrowsed<span class="sc">-</span>Browsed) <span class="sc">%&gt;%</span></span>
-<span id="cb97-7"><a href="#cb97-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
-<span id="cb97-8"><a href="#cb97-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> effect, <span class="at">fill=</span>Region),</span>
-<span id="cb97-9"><a href="#cb97-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">binpositions =</span> <span class="st">"all"</span>,</span>
-<span id="cb97-10"><a href="#cb97-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">stackgroups =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb97-11"><a href="#cb97-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">method =</span> <span class="st">"histodot"</span>,</span>
-<span id="cb97-12"><a href="#cb97-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">stackdir=</span><span class="st">"center"</span>)<span class="sc">+</span></span>
-<span id="cb97-13"><a href="#cb97-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Tree stems (all species)"</span>)<span class="sc">+</span></span>
-<span id="cb97-14"><a href="#cb97-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span></span>
-<span id="cb97-15"><a href="#cb97-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
-<span id="cb97-16"><a href="#cb97-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Treatment effect"</span>,</span>
-<span id="cb97-17"><a href="#cb97-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequency of sites"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>modelData <span class="sc">%&gt;%</span></span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">q =</span> <span class="fu">sum</span>(Quantity), <span class="at">.by=</span> <span class="fu">c</span>(Region, LocalityName, Treatment)) <span class="sc">%&gt;%</span></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Treatment,</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> q,</span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_fill =</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb116-6"><a href="#cb116-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">effect =</span> Unbrowsed<span class="sc">-</span>Browsed) <span class="sc">%&gt;%</span></span>
+<span id="cb116-7"><a href="#cb116-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb116-8"><a href="#cb116-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> effect, <span class="at">fill=</span>Region),</span>
+<span id="cb116-9"><a href="#cb116-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">binpositions =</span> <span class="st">"all"</span>,</span>
+<span id="cb116-10"><a href="#cb116-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">stackgroups =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb116-11"><a href="#cb116-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">method =</span> <span class="st">"histodot"</span>,</span>
+<span id="cb116-12"><a href="#cb116-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">stackdir=</span><span class="st">"center"</span>)<span class="sc">+</span></span>
+<span id="cb116-13"><a href="#cb116-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Tree stems (all species)"</span>)<span class="sc">+</span></span>
+<span id="cb116-14"><a href="#cb116-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span></span>
+<span id="cb116-15"><a href="#cb116-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb116-16"><a href="#cb116-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Treatment effect"</span>,</span>
+<span id="cb116-17"><a href="#cb116-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequency of sites"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Bin width defaults to 1/30 of the range of the data. Pick better value with
 `binwidth`.</code></pre>
 </div>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="analyses_files/figure-html/unnamed-chunk-68-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><img src="analyses_files/figure-html/unnamed-chunk-73-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -1587,9 +1674,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+  function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,
+      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1599,17 +1687,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start',
+      placement: 'bottom-start'
     };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1622,125 +1701,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
-          }
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
-        }
-        return container.innerHTML
-      } else {
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
-      }
-    }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
-          }
-        } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
-            if (note !== null) {
-              const html = processXRef(id, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1784,7 +1744,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
-            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1810,32 +1769,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1896,7 +1829,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-
 
 
 

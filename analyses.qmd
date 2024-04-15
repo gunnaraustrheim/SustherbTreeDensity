@@ -743,13 +743,42 @@ We will use a frequentist approach to mixed effects modelling with `lme4`. We ha
 
 We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
+The Hedmark-Akershus sites were initiated at different times:
+```{r}
+init2007 <- c(
+  "Hedmark | Maarud 1 | Winter browsing",
+  "Hedmark | Maarud 2 | Winter browsing",
+  "Hedmark | Maarud 3 | Winter browsing"
+)
+
+init2010 <- c(
+  "Hedmark | Didrik | Winter browsing",
+  "Hedmark | Halvard | Winter browsing",
+  "Hedmark | Stangeskovene Aurskog | Winter browsing",
+  "Hedmark | Stangeskovene Eidskog | Winter browsing",
+  "Hedmark | Stig | Winter browsing"
+)
+
+init2011 <- c(
+  "Hedmark | Eidskog | Winter browsing",
+  "Hedmark | Fet | Winter browsing",
+  "Hedmark | Kongsvinger 1 | Winter browsing",
+  "Hedmark | Kongsvinger 2 | Winter browsing",
+  "Hedmark | Nes 1 | Winter browsing",
+  "Hedmark | Nes 2 | Winter browsing",
+  "Hedmark | SOrum | Winter browsing"
+)
+```
+
+
 ```{r}
 Data <- Data %>%
   mutate(yearsSinceStart = case_when(
-    # Check !! Hedmark Akershus sites were initiated at different times: 2007 (M1,M2,M3), 2010 (DH,SSA,SD,TH,HP,SSB), 2011 (STSKN,FK,JCD,IAA,DD,OL,SK)
-    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
     Region == "SUSTHERB Telemark" ~ Year -2009,
-    Region == "SUSTHERB Trondelag" ~ Year -2008
+    Region == "SUSTHERB Trondelag" ~ Year -2008,
+    LocalityName %in% init2007 ~ Year - 2007,
+    LocalityName %in% init2010 ~ Year -2010,
+    LocalityName %in% init2011 ~ Year - 2011
   ))
 ```
 

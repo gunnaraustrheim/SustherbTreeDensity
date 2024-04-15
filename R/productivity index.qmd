@@ -66,13 +66,43 @@ allo_spruce  <- function(hgt) {0.038068*hgt^2}
 
 The number of stems in each height class (1-7) is recorded in the field, annually, since the start of the experiment. Height class 7 include all trees above 3 meters. We therefore have no precice height data for the tree community as more and more trees grow above 3 meters. First we will therefore explore the data and see how many years of data we can calculate the productivity index with.
 
+The sites in Hedmark-Akershus were initiated at different times:
+
+```{r}
+init2007 <- c(
+  "Hedmark | Maarud 1 | Winter browsing",
+  "Hedmark | Maarud 2 | Winter browsing",
+  "Hedmark | Maarud 3 | Winter browsing"
+)
+
+init2010 <- c(
+  "Hedmark | Didrik | Winter browsing",
+  "Hedmark | Halvard | Winter browsing",
+  "Hedmark | Stangeskovene Aurskog | Winter browsing",
+  "Hedmark | Stangeskovene Eidskog | Winter browsing",
+  "Hedmark | Stig | Winter browsing"
+)
+
+init2011 <- c(
+  "Hedmark | Eidskog | Winter browsing",
+  "Hedmark | Fet | Winter browsing",
+  "Hedmark | Kongsvinger 1 | Winter browsing",
+  "Hedmark | Kongsvinger 2 | Winter browsing",
+  "Hedmark | Nes 1 | Winter browsing",
+  "Hedmark | Nes 2 | Winter browsing",
+  "Hedmark | SOrum | Winter browsing"
+)
+```
+
 ```{r}
 dat <- read_excel("../data/DensityAnno2023.xlsx") |>
   mutate(yearsSinceStart = case_when(
-    # Check !! Hedmark Akershus sites were initiated at different times
-    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
     Region == "SUSTHERB Telemark" ~ Year -2009,
-    Region == "SUSTHERB Trondelag" ~ Year -2008)) %>%
+    Region == "SUSTHERB Trondelag" ~ Year -2008,
+    LocalityName %in% init2007 ~ Year - 2007,
+    LocalityName %in% init2010 ~ Year -2010,
+    LocalityName %in% init2011 ~ Year - 2011
+    )) %>%
   filter(Treatment == "Unbrowsed",
          EngelskNavn != "Empty sample",
          HeightClass >0) %>%
@@ -265,9 +295,6 @@ Then I export the index @fig-productivity as a data file so that we can import m
 dat_site |>
   select(LocalityName, productivityIndex) |> 
   saveRDS("../data/productivityIndex.RDS")
-
-  
-
 ```
 
 ## How to use the index

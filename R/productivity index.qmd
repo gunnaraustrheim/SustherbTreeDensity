@@ -95,9 +95,6 @@ init2011 <- c(
 ```
 
 ```{r}
-
-
-
 dat <- read_excel("../data/DensityAnno2023.xlsx") |>
   mutate(yearsSinceStart = case_when(
     Region == "SUSTHERB Telemark" ~ Year -2009,
@@ -298,9 +295,6 @@ Then I export the index @fig-productivity as a data file so that we can import m
 dat_site |>
   select(LocalityName, productivityIndex) |> 
   saveRDS("../data/productivityIndex.RDS")
-
-  
-
 ```
 
 ## How to use the index

@@ -1,0 +1,884 @@
+---
+title: "Analyse Tree Density"
+format: html
+editor: visual
+---
+
+## Analyses Tree Density
+
+Intro to the ms.
+
+## Import data
+
+Import data from NTNU University museum: Natron. Marc did a pivot table in excel.
+
+```{r setup, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(DT)
+library(lme4)
+```
+
+Imported DensityAnno2023.xlsx, with 3 regions all tree taxa and 7 heightclasses
+
+```{r}
+Data <- read_excel("data/DensityAnno2023.xlsx")
+```
+
+Importing productivity index. See `productivity index.qmd`.
+
+<!--# This index should be updated! -->
+
+```{r}
+# read data
+productivityIndex <- readRDS("data/productivityIndex.RDS")
+
+Data <- Data %>%
+  left_join(productivityIndex, by=join_by(LocalityName))
+```
+
+Gunnar: Fjern rader med quantity == null (0).
+
+Jeg tror vi må legge til rader med nuller der en art ikke er registrert. Anders: fix.
+
+```{r}
+Data <- Data |>
+    complete(Region,
+             LocalityName,
+             LocalityCode,
+             Plot,
+             Treatment,
+             Year,
+             Taxa,
+             fill = list(Quantity = 0))
+```
+
+Subset rows (20) and columns (10)
+
+```{r}
+DT::datatable(Data[1:20,1:10])
+```
+
+## Clean data
+
+...
+
+## Explore data
+
+Check if the data file is ok
+
+```{r}
+table(Data$Region)
+```
+
+Three regions included: total of 34911 rows
+
+```{r}
+table(Data$Year, Data$Plot)
+```
+
+Plot NW, NE, SW, SE referes to plot names in Hedmark-Akershus and corresponds to OV (NW), OH (NE), NV (SW), NH (SE) in the two other regions.
+
+## Figures
+
+A scatter plot and loess smoother showing the development of larger birch trees over time.
+
+```{r}
+Data %>%
+  #filter(Taxa == "Betula pubescens", HeightClass > 5)%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+  
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Betula pubescens")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Sorbus aucuparia")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Pinus sylvestris")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+```{r}
+Data %>%
+  filter(Taxa == "Picea abies")%>%
+  ggplot(aes(x=Year,y=Quantity))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.1)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_grid(cols=vars(Treatment),
+             rows=vars(Region),
+             #ncol=1,
+             scales = "free_y")+
+  theme_bw(base_size = 12)
+```
+
+We can look at species differences, and at the same time reduce the amount of points by taking the mean per location and treatement.
+
+```{r, warning=F}
+Data %>%
+  filter(HeightClass > 5,
+         Taxa %in% c("Betula pubescens", "Picea abies", "Pinus sylvestris", "Sorbus aucuparia"))%>%
+  group_by(LocalityCode, Year, Taxa, Treatment)%>%
+  summarise(Quantity = mean(Quantity)) %>%
+  ggplot(aes(x=Year,y=Quantity, colour=Treatment, fill=Treatment))+
+  geom_jitter(
+             size=3,
+             width=0.1,
+             alpha=0.4)+
+  geom_smooth(method = "loess",
+              se=F)+
+  facet_wrap(.~Taxa)+
+  theme_bw(base_size = 12)
+```
+
+In the figure above we see little obvious differences in birch, pine and spruce, but large differences in rowan.
+
+Since there is auto correlation (repeated measures at the same locatins every year), we could chose to visualise this as lines arther than points.
+
+```{r, warning=F}
+Data %>%
+  filter(HeightClass > 5,
+         Taxa %in% c("Betula pubescens", "Picea abies", "Pinus sylvestris", "Sorbus aucuparia"))%>%
+  group_by(LocalityCode, Year, Taxa, Treatment)%>%
+  summarise(Quantity = mean(Quantity)) %>%
+  ggplot(aes(x=Year,y=Quantity, group=LocalityCode))+
+  geom_line(alpha=0.8)+
+  facet_grid(rows = vars(Taxa),
+             cols=vars(Treatment))+
+  theme_bw(base_size = 12)
+```
+
+We could look at the same thing, but for the smalles height class
+
+```{r, warning=F}
+Data %>%
+  filter(HeightClass ==1,
+         Taxa %in% c("Picea abies", "Sorbus aucuparia"))%>%
+  group_by(LocalityCode, Year, Taxa, Treatment)%>%
+  summarise(Quantity = mean(Quantity)) %>%
+  ggplot(aes(x=Year,y=Quantity, group=LocalityCode))+
+  geom_line(alpha=0.8)+
+  facet_grid(rows = vars(Taxa),
+             cols=vars(Treatment),
+             scales="free")+
+  theme_bw(base_size = 12)
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year==2023,
+         Taxa %in% c("Picea abies", "Sorbus aucuparia"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass))+
+  geom_violin(alpha=0.8,
+              fill="grey30")+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Taxa)
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Sorbus aucuparia"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Picea abies"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Pinus sylvestris"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+```{r, warning=F}
+Data %>%
+  filter(Year %in% c(2009, 2013, 2018, 2023),
+         Taxa %in% c("Betula pubescens"))%>%
+  pivot_longer(cols = Quantity) %>%
+  ggplot(aes(x=Treatment,y=HeightClass, fill=Treatment))+
+  geom_violin(alpha=0.8,
+              adjust = 3
+              #fill="grey30"
+              )+
+  theme_bw(base_size = 12)+
+  facet_wrap(.~Year, ncol=4)+
+  guides(fill="none")
+```
+
+Gunnars plot 0712
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Telemark',EngelskNavn=='Pine' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 12)
+  
+```
+
+Number of Pine at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance from 2017.No temporal trends in UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Telemark',EngelskNavn=='Spruce' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 12)
+```
+
+Number of Spruce at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance from 2016, but more in B vs UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Telemark',EngelskNavn=='Birch' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 12)
+```
+
+Number of Birch at plot level (circles) in Telemark: low spread, but reduction of plots with high abundance in B from 2013.Less temporal trends in UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Telemark',EngelskNavn=='Rowan' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 12)
+```
+
+Number of Rowan at plot level (circles) in Telemark: low spread, but no reduction of plots in B and UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag')%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in B from 2013 and in UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Pine' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of Pine trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in B and in UB from 2013
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Spruce' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of Spruce trees at plot level (circles) in Trondelag: low spread, but reduction of plots with high abundance in UB from 2013.Less temporal trends in B
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Birch' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of Birch trees at plot level (circles) in Trondelag: low spread, but no reduction of plots with high abundance in B from 2013.Increasing temporal trends in UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of rowan trees at plot level (circles) in Trondelag: low spread, but some reduction of plots with high abundance in B and UB
+
+```{r}
+Data %>%
+  #filter(Region=='SUSTHERB Telemark',EngelskNavn=='Pine' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of pine trees at plot level (circles) in Telemark: low spread,
+
+```{r}
+Data %>%
+  filter(EngelskNavn=='Pine' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of trees at plot level (circles) across all regions: low spread, but some reduction of plots with high abundance in B and UB from 2013
+
+```{r}
+Data %>%
+  filter(EngelskNavn=='Spruce' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of spruce trees at plot level (circles) across all regions: low spread, but some reduction of plots with high abundance in B and UB
+
+```{r}
+Data %>%
+  filter(EngelskNavn=='Birch' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of birch trees at plot level (circles) across all regions: low spread, no reduction of plots with high abundance in B and UB
+
+```{r}
+Data %>%
+  filter(EngelskNavn=='Rowan' )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of rowan trees at plot level (circles) across all regions: low spread, no reduction of plots with high abundance in B and UB
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Pine' )%>%
+  ggplot()+
+  geom_point(size=3,alpha=.5,
+aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Birch' )%>%
+  ggplot()+
+  geom_point(size=3,alpha=.5,
+aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Spruce' )%>%
+  ggplot()+
+  geom_point(size=3,alpha=.5,
+aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan' )%>%
+  ggplot()+
+  geom_point(size=3,alpha=.5,
+aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Birch',
+        HeightClass=="7" )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of birch trees at plot level (circles) in Trøndelag at harvest class 7: increased in UB from 2018 and to lesser extent in B from 2019
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Spruce',
+        HeightClass=="7" )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of spruce trees at plot level (circles) in Trøndelag at harvest class 7: increased in B from 2016 and to lesser extent in UB from 2019
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan',
+        HeightClass=="7" )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of Rowan trees at plot level (circles) in Trøndelag at harvest class 7: increased in UB from 2015. No in B
+
+```{r}
+Data %>%
+  filter(EngelskNavn=='Rowan',
+        HeightClass=="7" )%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan',
+        HeightClass=="1")%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+Number of rowan trees at plot level (circles) in Trøndelag at harvest class 1:
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan',
+        HeightClass=="2")%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+```{r}
+Data %>%
+  filter(Region=='SUSTHERB Trondelag',EngelskNavn=='Rowan',
+        HeightClass=="3")%>%
+  ggplot()+
+  geom_violin(aes(x=factor(Year),
+                 y=Quantity
+                 ),
+              fill = "yellow")+
+  facet_wrap(.~Treatment,
+             ncol=1,
+             scales = "free")+
+  theme_bw(base_size = 10)
+```
+
+## Modelling
+
+### Subsetting data set
+
+We will use a frequentist approach to mixed effects modelling with `lme4`. We have a random structure given by the sampling design. Our fixed structure is defined from theoretical expectations (a model set) and no model selection is done. Effect sizes are interpreted using the estimated and the errors, simulating a normal distribution for the estimates. P-values are not reported.
+
+We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
+
+```{r}
+Data <- Data %>%
+  mutate(yearsSinceStart = case_when(
+    # Check !! Hedmark Akershus sites were initiated at different times
+    # 2007 (M1,M2,M3), 2010 (DH,SSA,SD,TH,HP,SS), 2011 (STSKN, FK,JCD,IAA,DD,OL,SK)
+    Region == "SUSTHERB Hedmark-Akershus" ~ Year -2012,
+    Region == "SUSTHERB Telemark" ~ Year -2009,
+    Region == "SUSTHERB Trondelag" ~ Year -2008
+  ))
+```
+
+```{r}
+table(Data$yearsSinceStart, Data$Region)
+```
+
+It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined. First we filter out sites that have been thinned (3 in Trøndelag) or disturbed (1 in Hedmark).
+
+```{r}
+modelData <- Data %>%
+  filter(
+    Year == 2023,
+    !LocalityName %in% c(
+      "Hedmark | Nes 1 | Winter browsing",
+      "TrOndelag | Selbu_Fl | Winter browsing",
+      "TrOndelag | Malvik | Winter browsing",
+      "TrOndelag | Hi_tydal | Winter browsing"
+    )
+  )
+
+# same as:
+# modelData <- filter(Data, Year == 2023)
+
+# %>% kalles 'pipe'. Kan også skrives |>
+```
+
+We can filter by species, like I do below, but first we will look at all species combined.
+
+```{r}
+pineData <- modelData %>%
+  filter(Taxa == "Pinus sylvestris")
+
+birchData <- modelData %>%
+  filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
+```
+
+One hypothesis is about the quantity of large trees above browsing height. Let's define that as the height class 7 (\>3m).
+
+```{r}
+birchData7 <- birchData %>%
+  filter(HeightClass ==7)
+```
+
+### Q1 - Stem density all species
+
+Then we model the density of all tree stems as a function of treatment and productivity to look for signs of self thinning.
+
+```{r}
+q1_a <- lme4::lmer(data = modelData,
+  Quantity ~ Treatment * productivityIndex + (1|Region/LocalityCode))
+```
+
+We can run a summary, mainly see that the model is fitted correctly
+
+```{r}
+summary(q1_a)
+```
+
+```{r}
+plot(q1_a)
+```
+
+```{r}
+qqnorm(resid(q1_a))
+qqline(resid(q1_a))
+```
+
+Not good.
+
+Perhaps we should use a gamma or poisson distribution
+
+```{r}
+hist(modelData$Quantity)
+```
+
+```{r}
+q1_gamma <- lme4::glmer(
+  data = modelData,
+  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region / LocalityCode),
+  family = Gamma(link = "inverse")
+) # I tried log and inverse link functions as well.
+summary(q1_gamma)
+```
+
+```{r}
+qqnorm(resid(q1_gamma))
+qqline(resid(q1_gamma))
+```
+
+```{r}
+q1_poisson <- lme4::glmer(
+  data = modelData,
+  Quantity ~ Treatment * productivityIndex + (1 | Region / LocalityCode),
+  family = poisson(link = "log")
+)
+
+# summary(q1_poisson)
+```
+
+```{r}
+qqnorm(resid(q1_poisson))
+qqline(resid(q1_poisson))
+```
+
+Poisson no better.
+
+Let's try a simple log-normal model
+
+```{r}
+q1_lognorm <- lmer(data=modelData,
+               log(Quantity+1) ~ Treatment * productivityIndex +(1|Region/LocalityCode))
+# summary(q1_lognorm)
+```
+
+```{r}
+qqnorm(resid(q1_lognorm))
+qqline(resid(q1_lognorm))
+```
+
+None are very good, but perhaps the gamma model was best?
+
+Are the residulas better if we look at the for the three regions seperately?
+
+```{r}
+temp <- modelData %>%
+  mutate(gammaresids = resid(q1_gamma))
+
+par(mfrow=c(1,3))
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Hedmark-Akershus"])
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Telemark"])
+qqnorm(temp$gammaresids[temp$Region=="SUSTHERB Trondelag"])
+```
+
+The three regions are just as bad.
+
+Is the possion model overdispersed? If so, look into negative binomial.
+
+There are zeros in the data. Is that a mistake?
+
+## Tables
+
+When (if) the model is done, here is how you can get a nice summary table.
+
+```{r}
+stargazer::stargazer(q1_gamma, 
+                     type = "text", # change to latex to get it directly into a manuscript
+                     digits = 3,
+                     star.cutoffs = c(0.05, 0.01, 0.001),
+                     digit.separator = "")
+```
+
+Here is one way to visualise the treatment effect:
+
+```{r}
+modelData %>%
+  summarise(q = sum(Quantity), .by= c(Region, LocalityName, Treatment)) %>%
+  pivot_wider(names_from = Treatment,
+              values_from = q,
+              values_fill = 0) %>%
+  mutate(effect = Unbrowsed-Browsed) %>%
+  ggplot()+
+  geom_dotplot(aes(x = effect, fill=Region),
+               binpositions = "all",
+               stackgroups = TRUE,
+               method = "histodot",
+               stackdir="center")+
+  ggtitle("Tree stems (all species)")+
+  geom_vline(xintercept = 0)+
+  theme_bw()+
+  labs(x = "Treatment effect",
+       y = "Frequency of sites")
+```

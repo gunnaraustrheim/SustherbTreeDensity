@@ -17,6 +17,7 @@ library(tidyverse)
 library(readxl)
 library(DT)
 library(lme4)
+library(ggridges)
 ```
 
 Imported DensityAnno2023.xlsx, with 3 regions all tree taxa and 7 heightclasses
@@ -744,6 +745,7 @@ We will use a frequentist approach to mixed effects modelling with `lme4`. We ha
 We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
 The Hedmark-Akershus sites were initiated at different times:
+
 ```{r}
 init2007 <- c(
   "Hedmark | Maarud 1 | Winter browsing",
@@ -769,7 +771,6 @@ init2011 <- c(
   "Hedmark | SOrum | Winter browsing"
 )
 ```
-
 
 ```{r}
 Data <- Data %>%
@@ -923,11 +924,11 @@ We could try and aggregate the data first, before modelling.
 
 ```{r}
 modelData2 <- modelData |>
-  group_by(Region, LocalityName, LocalityCode, Treatment, productivityIndex) |>
+  group_by(Taxa, Region, LocalityName, LocalityCode, Treatment, productivityIndex) |>
   summarise(response = sum(Quantity))
 ```
 
-Trying a log normal model on the aggregated data set
+Trying a log normal model on the aggregated data set. Best so far
 
 ```{r}
 q1_a2 <- lme4::lmer(data = modelData2,
@@ -935,6 +936,77 @@ q1_a2 <- lme4::lmer(data = modelData2,
 summary(q1_a2)
 qqnorm(resid(q1_a2))
 qqline(resid(q1_a2))
+```
+
+```{r}
+pineData <- modelData2 %>%
+  filter(LocalityCode == "DHB")
+```
+
+Then by species: the 4 main spruce, rowan, birch and pine
+
+```{r}
+modelData2 <- modelData %>%
+  filter(Taxa == "Sorbus aucuparia")
+  q1_SAlog <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(q1_SAlog)
+qqnorm(resid(q1_SAlog))
+qqline(resid(q1_SAlog))
+```
+
+```{r}
+modelData2 <- modelData %>%
+  filter(Taxa == "Picea abies")
+  q1_PAlog <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(q1_PAlog)
+qqnorm(resid(q1_PAlog))
+qqline(resid(q1_PAlog))
+```
+
+```{r}
+modelData2 <- modelData %>%
+  filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
+  q1_BPlog <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(q1_BPlog)
+qqnorm(resid(q1_BPlog))
+qqline(resid(q1_BPlog))
+```
+
+Pine
+
+```{r}
+modelData2 <- modelData %>%
+  filter(Taxa == "Pinus sylvestris")
+  q1_PSlog <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(q1_PSlog)
+qqnorm(resid(q1_PSlog))
+qqline(resid(q1_PSlog))
+```
+
+```{r}
+
+modelData2 <- modelData %>%
+  filter(Taxa == "Pinus sylvestris", HeightClass == 7)
+  q1_PS7log <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(q1_PS7log)
+qqnorm(resid(q1_PS7log))
+qqline(resid(q1_PS7log))
+
+#filter(HeightClass == 7 | is.na(HeightClass))
+```
+
+```{r}
+pineData <- modelData2 %>%
+  q1_log <- lme4::lmer(data = modelData2,
+  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+summary(pineData)
+qqnorm(resid(q1_log))
+qqline(resid(q1_log))
 ```
 
 Better. Perhaps a gamma or poisson model would be even better still. First Poisson
@@ -965,16 +1037,16 @@ qqline(resid(q1_gamma2))
 By species. First pine
 
 ```{r}
-pineData <- modelData %>%
+pineData <- modelData2 %>%
   filter(Taxa == "Pinus sylvestris")
-q1_PSgamma2 <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
+q1_PSlog <- lme4::glmer(
+  data = m,
+  response + 0.1 ~ Treatment * productivityIndex + (1 | Region),
   family = Gamma(link = "log")
 ) # I tried log and inverse link functions as well.
-summary(q1_PSgamma2)
-qqnorm(resid(q1_PSgamma2))
-qqline(resid(q1_PSgamma2))
+summary(pineData)
+qqnorm(resid(q1_PSlog))
+qqline(resid(q1_PSlog))
 #pineData <- modelData %>%
   
 

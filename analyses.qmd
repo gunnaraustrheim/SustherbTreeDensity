@@ -28,8 +28,6 @@ Data <- read_excel("data/DensityAnno2023.xlsx")
 
 Importing productivity index. See `productivity index.qmd`.
 
-<!--# This index should be updated! -->
-
 ```{r}
 # read data
 productivityIndex <- readRDS("data/productivityIndex.RDS")
@@ -335,6 +333,8 @@ Data %>%
   facet_wrap(.~Year, ncol=4)+
   guides(fill="none")
 ```
+
+### Plots for each species within regions
 
 Gunnars plot 0712
 
@@ -744,7 +744,7 @@ We will use a frequentist approach to mixed effects modelling with `lme4`. We ha
 
 We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
-The Hedmark-Akershus sites were initiated at different times:
+### The Hedmark-Akershus sites were initiated at different times:
 
 ```{r}
 init2007 <- c(
@@ -788,6 +788,8 @@ table(Data$yearsSinceStart, Data$Region)
 ```
 
 It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined.
+
+Four localities were omitted due to disturbances
 
 ```{r}
 modelData <- Data %>%
@@ -922,6 +924,8 @@ There are zeros in the data. Is that a mistake?
 
 We could try and aggregate the data first, before modelling.
 
+### Data aggregation
+
 ```{r}
 modelData2 <- modelData |>
   group_by(Taxa, Region, LocalityName, LocalityCode, Treatment, productivityIndex) |>
@@ -939,8 +943,7 @@ qqline(resid(q1_a2))
 ```
 
 ```{r}
-pineData <- modelData2 %>%
-  filter(LocalityCode == "DHB")
+
 ```
 
 Then by species: the 4 main spruce, rowan, birch and pine
@@ -978,7 +981,7 @@ qqline(resid(q1_BPlog))
 Pine
 
 ```{r}
-modelData2 <- modelData %>%
+modelData2 %>%
   filter(Taxa == "Pinus sylvestris")
   q1_PSlog <- lme4::lmer(data = modelData2,
   log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
@@ -989,7 +992,7 @@ qqline(resid(q1_PSlog))
 
 ```{r}
 
-modelData2 <- modelData %>%
+modelData2 %>%
   filter(Taxa == "Pinus sylvestris", HeightClass == 7)
   q1_PS7log <- lme4::lmer(data = modelData2,
   log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))

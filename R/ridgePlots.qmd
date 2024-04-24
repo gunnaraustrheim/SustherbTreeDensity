@@ -17,7 +17,14 @@ library(DT)
 
 ```{r loadData}
 dat <- read_excel("../data/DensityAnno2023.xlsx") |> # the ../ part takes you one folder back, since the working directory for this quarto file is in the R folder and not the root folder
-   filter(Taxa == "Sorbus aucuparia") # just rowan for testing
+  #filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
+  filter(Taxa == "Picea abies") # just rowan for testing
+```
+
+```{r loadData}
+dat <- read_excel("../data/DensityAnno2023.xlsx") |> # the ../ part takes you one folder back, since the working directory for this quarto file is in the R folder and not the root folder
+  #filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
+  filter(Taxa == "Sorbus aucuparia") # just rowan for testing
 ```
 
 Coloured by year
@@ -81,6 +88,8 @@ And a version
 
 -   using the reversed (original) orientation
 
+Figures are made for all species (spruce, pine, birch, rowan). The example below shows results for spruce. Could we make a figure that combines deciduous (rowan and birch) and coniferous (pine and spruce on top of each other?
+
 ```{r}
 dat |>
   uncount(Quantity) |>
@@ -100,5 +109,34 @@ dat |>
   labs(y = "Year", x = "Heigth class")+
   guides(fill = 'none')+
   facet_wrap(.~Treatment,ncol=2)
+ggsave(filename = "Rowan.png")
+```
 
+```{r}
+#sprucData <- dat %>%
+ # filter(Taxa == "Picea abies")
+
+#filter(Taxa == "Picea abies") # just rowan for testing
+```
+
+```{r}
+dat |>
+  uncount(Quantity) |>
+  ggplot(aes(x = HeightClass, 
+             y = factor(Year),
+             #height = Quantity,
+             fill = Treatment
+             ))+
+  geom_density_ridges(
+                      alpha=.7,
+                      bandwidth = 1,
+                      scale=2,
+                      quantile_lines = TRUE, 
+                      quantiles = 2)+
+  theme_ridges(grid = FALSE, center_axis_labels = TRUE) +
+  xlim(c(1,7))+
+  labs(y = "Year", x = "Heigth class")+
+  guides(fill = 'none')+
+  facet_wrap(.~Treatment,ncol=2)
+ggsave(filename = "Spruce.png")
 ```

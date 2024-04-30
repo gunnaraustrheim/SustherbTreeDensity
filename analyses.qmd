@@ -89,6 +89,8 @@ Data |>
 
 Expanding the data set and adding rows for with quantity equal to zero for cases where a taxa was not found. Note that when I add a this zero, the height category and height_cm column is filled with NAs.
 
+#Question for Anders: Will we not need actual values on individuals in each height class? e.g. the lack of individuals in height class 7 in browsed.
+
 ```{r}
 Data <- Data |>
     complete( 
@@ -741,16 +743,9 @@ Data %>%
 
 ### Subsetting data set
 
-We will use a frequentist approach to mixed effects modelling with `lme4`. 
-We have a random structure given by the sampling design. 
-Our fixed structure is defined from theoretical expectations (a model set) 
-and no model selection/reduction is done. 
-Effect sizes are interpreted using the estimats and the errors, 
-simulating a normal distribution for the estimates. P-values are not reported.
+We will use a frequentist approach to mixed effects modelling with `lme4`. We have a random structure given by the sampling design. Our fixed structure is defined from theoretical expectations (a model set) and no model selection/reduction is done. Effect sizes are interpreted using the estimats and the errors, simulating a normal distribution for the estimates. P-values are not reported.
 
-We will not look at the temporal trends, but rather focus on the last year. 
-The last year with data is 2023, which is 15-11 years of data, 
-depending on the region.
+We will not look at the temporal trends, but rather focus on the last year. The last year with data is 2023, which is 15-11 years of data, depending on the region.
 
 ### The Hedmark-Akershus sites were initiated at different times:
 
@@ -795,9 +790,7 @@ Data <- Data %>%
 table(Data$yearsSinceStart, Data$Region)
 ```
 
-It's a shame to cut 4 years with data, so I will just use the 2023 data for all 
-regions. With only three regions it is possible to interpret the regional affect 
-and duration effect combined.
+It's a shame to cut 4 years with data, so I will just use the 2023 data for all regions. With only three regions it is possible to interpret the regional affect and duration effect combined.
 
 Four localities were omitted due to disturbances
 
@@ -829,8 +822,7 @@ birchData <- modelData %>%
   filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
 ```
 
-One hypothesis is about the quantity of large trees above browsing height. 
-Let's define that as the height class 7 (\>3m).
+One hypothesis is about the quantity of large trees above browsing height. Let's define that as the height class 6 and 7 (\>5).
 
 ```{r}
 birchData7 <- birchData %>%
@@ -936,9 +928,11 @@ There are zeros in the data. Is that a mistake?
 We could try and aggregate the data first, before modelling.
 
 ### Data aggregation
-We can try to sum the number of stems per LocalityCode.
-This variation was explained in the random structure in the models above.
-If we aggregate this way, the data might fit easier.
+
+We can try to sum the number of stems per LocalityCode. This variation was explained in the random structure in the models above. If we aggregate this way, the data might fit easier.
+
+#Question to Anders: group function. What happends with NA vs zeros in the different height classes?
+
 ```{r}
 modelData2 <- modelData |>
   group_by(Taxa, 
@@ -952,67 +946,79 @@ modelData2 <- modelData |>
   summarise(response = sum(Quantity))
 ```
 
-Trying a log normal model on the aggregated data set. Best so far
+Trying a log normal model on the aggregated data set. Not so good for dataset including all tree species. Maybe because of a lot of rare tree species?
 
 ```{r}
 q1_a2 <- lme4::lmer(data = modelData2,
-  log(response+1) ~ Treatment * productivityIndex + (1|Region))
+  log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_a2)
 qqnorm(resid(q1_a2))
 qqline(resid(q1_a2))
 ```
 
+Then by species: the 4 main spruce, rowan, birch and pine. Looks reasonably good for all.
 
-Then by species: the 4 main spruce, rowan, birch and pine
+First Sorbus (SA)
 
 ```{r}
 modelData2_SA <- modelData2 %>%
   filter(Taxa == "Sorbus aucuparia")
   q1_SAlog <- lme4::lmer(data = modelData2_SA,
-  log(response+1) ~ Treatment * productivityIndex + (1|Region))
+  log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_SAlog)
 qqnorm(resid(q1_SAlog))
 qqline(resid(q1_SAlog))
 ```
 
+Picea abies (PA)
+
 ```{r}
-modelData2 <- modelData %>%
+modelData2_PA <- modelData2 %>%
   filter(Taxa == "Picea abies")
-  q1_PAlog <- lme4::lmer(data = modelData2,
-  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+  q1_PAlog <- lme4::lmer(data = modelData2_PA,
+  log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_PAlog)
 qqnorm(resid(q1_PAlog))
 qqline(resid(q1_PAlog))
 ```
 
+Betula (BP)
+
 ```{r}
-modelData2 <- modelData %>%
+modelData2_BP <- modelData2 %>%
   filter(Taxa %in% c("Betula pubescens", "Betula pendula") )
-  q1_BPlog <- lme4::lmer(data = modelData2,
-  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+  q1_BPlog <- lme4::lmer(data = modelData2_BP,
+  log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_BPlog)
 qqnorm(resid(q1_BPlog))
 qqline(resid(q1_BPlog))
 ```
 
-Pine
+Pinus (PS)
 
 ```{r}
-modelData2 %>%
-  filter(Taxa == "Pinus sylvestris")
-  q1_PSlog <- lme4::lmer(data = modelData2,
-  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+modelData2_PS <- modelData2 %>%
+ filter(Taxa == "Pinus sylvestris")
+  q1_PSlog <- lme4::lmer(data = modelData2_PS,
+  log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_PSlog)
 qqnorm(resid(q1_PSlog))
 qqline(resid(q1_PSlog))
 ```
 
-```{r}
+### Models for Heightclass \>5. Test for Pine: 
 
-modelData2 %>%
-  filter(Taxa == "Pinus sylvestris", HeightClass == 7)
-  q1_PS7log <- lme4::lmer(data = modelData2,
-  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
+Correct for the problem that HeightClass data with no trees higher that class 5, are not included in the datafile. something strange here for Pine
+
+```{r}
+pineData6<-modelData2
+pineData6$quant6<-ifelse(pineData6$HeightClass>5,pineData6$response,0)
+pineData6$quant6[pineData6$response==0]<-0
+
+pineData6 %>%
+filter (Taxa == "Pinus sylvestris", HeightClass > 5)
+  q1_PS7log <- lme4::lmer(data = pineData6,
+  log(quant6+1) ~ Treatment * productivityIndex + (1|Region/LocalityName))
 summary(q1_PS7log)
 qqnorm(resid(q1_PS7log))
 qqline(resid(q1_PS7log))
@@ -1020,85 +1026,32 @@ qqline(resid(q1_PS7log))
 #filter(HeightClass == 7 | is.na(HeightClass))
 ```
 
-```{r}
-pineData <- modelData2 %>%
-  q1_log <- lme4::lmer(data = modelData2,
-  log(Quantity+1) ~ Treatment * productivityIndex + (1|Region))
-summary(pineData)
-qqnorm(resid(q1_log))
-qqline(resid(q1_log))
-```
-
-Better. Perhaps a gamma or poisson model would be even better still. First Poisson
+Then across all species height class 6 and 7 (\>5)
 
 ```{r}
-q1_poisson2 <- lme4::lmer(data = modelData2,
-  response ~ Treatment * productivityIndex + (1|Region))
-  family = poisson(link = "log")
-
-summary(q1_poisson2)
-qqnorm(resid(q1_poisson2))
-qqline(resid(q1_poisson2))
-```
-
-Not a good fit. Try Gamma instead (with a log link). Also tried inverse
-
-```{r}
-q1_gamma2 <- lme4::glmer(
-  data = modelData2,
-  response + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_gamma2)
-qqnorm(resid(q1_gamma2))
-qqline(resid(q1_gamma2))
-```
-
-By species. First pine
-
-```{r}
-pineData <- modelData2 %>%
-  filter(Taxa == "Pinus sylvestris")
-q1_PSlog <- lme4::glmer(
-  data = m,
-  response + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(pineData)
-qqnorm(resid(q1_PSlog))
-qqline(resid(q1_PSlog))
-#pineData <- modelData %>%
-  
-
-```
-
-Not sure abouit the output here. Same for birch and rowan. Something to do with the response variable (Quantity)??
-
-```{r}
-BirchData <- modelData %>%
-  filter(Taxa %in% c("Betula pubescens", "Betula pendula"))
-q1_BPgamma2 <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_BPgamma2)
-qqnorm(resid(q1_BPgamma2))
-qqline(resid(q1_BPgamma2))
-#pineData <- modelData %>%
+modelData2 <- modelData |>
+  group_by(Taxa, 
+           Region, 
+           LocalityName, 
+           LocalityCode, 
+           Treatment, 
+           productivityIndex,
+           HeightClass,
+           height_cm) |>
+  summarise(response = sum(Quantity))
 ```
 
 ```{r}
-sorbusData <- modelData %>%
-  filter(Taxa == "Sorbus aucuparia")
-q1_SAgamma <- lme4::glmer(
-  data = modelData,
-  Quantity + 0.1 ~ Treatment * productivityIndex + (1 | Region),
-  family = Gamma(link = "log")
-) # I tried log and inverse link functions as well.
-summary(q1_SAgamma)
-qqnorm(resid(q1_SAgamma))
-qqline(resid(q1_SAgamma))
+
+Data6<-modelData2
+Data6$quant6<-ifelse(Data6$HeightClass>5,Data6$response,0)
+Data6$quant6[Data6$response==0]<-0
+
+q1_all <- lme4::lmer(data = modelData2, log(response+1) ~ Treatment * productivityIndex + (1|Region/LocalityName)) 
+
+summary(q1_all) 
+qqnorm(resid(q1_all)) 
+qqline(resid(q1_all))
 ```
 
 ## Tables
@@ -1112,6 +1065,8 @@ stargazer::stargazer(q1_gamma2,
                      star.cutoffs = c(0.05, 0.01, 0.001),
                      digit.separator = "")
 ```
+
+## Visualise the treatment effect
 
 Here is one way to visualise the treatment effect:
 

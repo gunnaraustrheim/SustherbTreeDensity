@@ -154,7 +154,7 @@ view(out_tot)
   
 ```
 
-```{}
+```         
 ```
 
 ## Browsing pressure within each region: dAUC

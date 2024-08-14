@@ -98,19 +98,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="productivity-index" class="level2">
 <h2 class="anchored" data-anchor-id="productivity-index">Productivity Index</h2>
-<div class="callout callout-style-default callout-note no-icon callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Pay Attention
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>OBS, note that this script needs to be re-run when we have the updated start-up year from Hedmark and Akershus</p>
-</div>
-</div>
 <section id="background-and-rationale" class="level3">
 <h3 class="anchored" data-anchor-id="background-and-rationale">Background and rationale</h3>
 <p>Site productivity is very relevant predictor variable for our analyses. A productivity index was used in two previous papers:</p>
@@ -138,7 +125,7 @@ Pay Attention
 </section>
 <section id="allo" class="level2">
 <h2 class="anchored" data-anchor-id="allo">Allometric models</h2>
-<p>Here are the allometric models I ill use.</p>
+<p>Here are the allometric models I ill use, from the Ecosystems paper. The units are not given in the table, but interpreted from the data to be grams.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -159,7 +146,7 @@ Pay Attention
 </section>
 <section id="height-distribution-over-time" class="level2">
 <h2 class="anchored" data-anchor-id="height-distribution-over-time">Height distribution over time</h2>
-<p>The number of stems in each height class (1-7) is recorded in the field, annually, since the start of the experiment. Height class 7 include all trees above 3 meters. We therefore have no precice height data for the tree community as more and more trees grow above 3 meters. First we will therefore explore the data and see how many years of data we can calculate the productivity index with.</p>
+<p>The number of stems in each height class (1-7) is recorded in the field, annually, since the start of the experiment. Height class 7 include all trees above 3 meters. We therefore have no precise height data for the tree community as more and more trees grow above 3 meters. First we will therefore explore the data and see how many years of data we can calculate the productivity index with.</p>
 <p>The sites in Hedmark-Akershus were initiated at different times:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>init2007 <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
@@ -297,7 +284,7 @@ Figure&nbsp;2: Same figure as above, but with one line per taxa.
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(dat<span class="sc">$</span>biomass, <span class="at">ylab =</span> <span class="st">"Biomass"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(dat<span class="sc">$</span>biomass, <span class="at">ylab =</span> <span class="st">"Biomass (g)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-dist-biomass" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -306,7 +293,7 @@ Figure&nbsp;2: Same figure as above, but with one line per taxa.
 <img src="productivity-index_files/figure-html/fig-dist-biomass-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dist-biomass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Variation in total biomass. Each point is a 2 m radii circle. Units unknown.
+Figure&nbsp;3: Variation in total biomass. Each point is a the biomass of one taxa in 2 m radii circle.
 </figcaption>
 </figure>
 </div>
@@ -323,9 +310,11 @@ You can override using the `.groups` argument.</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>dat_site <span class="sc">|&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> yearsSinceStart, <span class="at">y =</span> Biomass, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> yearsSinceStart, <span class="at">y =</span> Biomass<span class="sc">/</span><span class="dv">1000</span>, </span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">group =</span> LocalityCode,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> Region))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> Region))<span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Biomass (kg)"</span>)<span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">300</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing missing values (`geom_line()`).</code></pre>
 </div>
@@ -342,7 +331,7 @@ Figure&nbsp;4: Biomass increments over time for each site.
 </div>
 </div>
 </div>
-<p>We see in <a href="#fig-biomassInc" class="quarto-xref">Figure&nbsp;4</a> that biomass accumulated relatively linearly for Telemakr and Trøndelag, but that for the more productive region Hedmark-Akerhus we see a plateu caused by more trees going into the 7th height category where all trees are said to be 325 cm even if they are much taller in reality.</p>
+<p>We see in <a href="#fig-biomassInc" class="quarto-xref">Figure&nbsp;4</a> that biomass accumulated relatively linearly for Telemark and Trøndelag, but that for the more productive region Hedmark-Akerhus we see a plateu caused by more trees going into the 7th height category where all trees are said to be 325 cm even if they are much taller in reality.</p>
 <p>It is maybe an issue that some sites in Hedmark-Akershus had more biomass at the start of the experiemet than some other sites have at the end. This could simply be because the start-up year is wrong for these sites in Hedmark-Akershus. In any case, for this exercise I can normalise each time series against the start value.</p>
 <div class="cell">
 <details class="code-fold">
@@ -357,9 +346,10 @@ Figure&nbsp;4: Biomass increments over time for each site.
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>dat_site <span class="sc">|&gt;</span></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> yearsSinceStart, <span class="at">y =</span> Biomass_norm, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> yearsSinceStart, <span class="at">y =</span> Biomass_norm<span class="sc">/</span><span class="dv">1000</span>, </span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">group =</span> LocalityCode,</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> Region))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> Region))<span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Biomass (g)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing missing values (`geom_line()`).</code></pre>
@@ -377,7 +367,7 @@ Figure&nbsp;5: Same as previous figure, but with normalised biomass variable.
 </div>
 </div>
 </div>
-<p>Most sites are able to reach 25000 units of biomass so I will use that as the threshold value.</p>
+<p>Most sites are able to reach 25 kg of biomass per circle, so I will use that as the threshold value.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>

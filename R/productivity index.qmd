@@ -155,6 +155,32 @@ The fraction of trees in height category 7 varies with region ( @fig-regions) an
 Let's calculate the above ground biomass for each year and each site. First just get the biomass for each species and each circle.
 
 ```{r}
+dat <- read_excel("../data/DensityAnno2023.xlsx") |>
+  mutate(yearsSinceStart = case_when(
+    Region == "SUSTHERB Telemark" ~ Year -2009,
+    Region == "SUSTHERB Trondelag" ~ Year -2008,
+    LocalityName %in% init2007 ~ Year - 2007,
+    LocalityName %in% init2010 ~ Year -2010,
+    LocalityName %in% init2011 ~ Year - 2011
+    )) %>%
+ filter(EngelskNavn != "Empty sample", HeightClass >0) %>%
+  mutate(heightGroup = case_when(
+    HeightClass == 7 ~ "large",
+    HeightClass < 7 ~ "small"),
+  # add tree height in cm as the central value for each height category
+    height_cm = case_when(
+      HeightClass == 1 ~ 25,
+      HeightClass == 2 ~ 75,
+      HeightClass == 3 ~ 125,
+      HeightClass == 4 ~ 175,
+      HeightClass == 5 ~ 225,
+      HeightClass == 6 ~ 275,
+      HeightClass == 7 ~ 325)
+    )
+  
+```
+
+```{r}
 dat <- dat |>
   mutate(biomass = case_when(
     Taxa == "Picea abies" ~ allo_spruce(height_cm),
@@ -183,17 +209,76 @@ Then we can sum the biomass across all species at each site.
 ```{r fig-biomassInc}
 #| fig.cap: "Biomass increments over time for each site."
 dat_site <- dat |>
-  group_by(Region, LocalityName, LocalityCode, yearsSinceStart) |>
+  group_by(Region, LocalityName, LocalityCode, Treatment, yearsSinceStart) |>
   summarise(Biomass = sum(biomass))
   
 dat_site |>
   ggplot() +
   geom_line(aes(x = yearsSinceStart, y = Biomass/1000, 
                 group = LocalityCode,
-                color = Region))+
+                color = Treatment))+
   labs(y = "Biomass (kg)")+
   ylim(c(0,300))
 
+ 
+
+```
+
+Problem: how to insert a line for average browsed and unbrowsed treatment in the script above??
+
+```{r fig-biomassInc}
+#| fig.cap: "Biomass increments over time for each site."
+dat_site <- dat |>
+  group_by(Region, LocalityName, LocalityCode, Treatment, yearsSinceStart) |>
+  summarise(Biomass = sum(biomass))
+  
+dat_site |>
+  ggplot() +
+  geom_line(aes(x = yearsSinceStart, y = Biomass/1000, 
+                group = LocalityCode,
+                color = Treatment))+
+  facet_grid(col=vars(Treatment))+
+ labs(y = "Biomass (kg)")+
+ylim(c(0,300))
+```
+
+## Modelling treatment differences in biomass
+
+Linear mixed effect models on the effect of treatment on biomass across regions . Productivity index at the plot scale is also included as an explanatory variable in interaction with treatment. Year is a random variable but also shown as a fixed effect.
+
+Preliminary results: The best model with logged response variable (compared to poisson, and no logging) showed a strong effect of productivity, and to some extent treatment, but some of the treatment effect were dependent on productivity. Biomass also increased with years since the start of the treatment.
+
+```{r}
+Biomass1 <- lme4::lmer(data = dat2,
+  log(biomass+1) ~ Treatment + yearsSinceStart + productivityIndex + (1|Region)+(1|yearsSinceStart))
+summary(Biomass1)
+qqnorm(resid(Biomass1))
+qqline(resid(Biomass1))
+```
+
+```{r}
+Biomass2 <- lme4::lmer(data = dat2,
+  log(biomass+1) ~ Treatment*productivityIndex +yearsSinceStart + (1|Region)+(1|yearsSinceStart))
+summary(Biomass2)
+qqnorm(resid(Biomass2))
+qqline(resid(Biomass2))
+```
+
+```{r}
+Biomass2 <- lme4::lmer(data = dat2,
+  log(biomass+1) ~ Treatment*productivityIndex + (1|Region)+(1|Year))
+summary(Biomass2)
+qqnorm(resid(Biomass2))
+qqline(resid(Biomass2))
+```
+
+```{r}
+Biomass3 <- lme4::lmer(data = dat2,
+  biomass ~ Treatment*productivityIndex + (1|Region)+ (1|Year))
+family = poisson(link = "log")
+summary(Biomass3)
+qqnorm(resid(Biomass3))
+qqline(resid(Biomass3))
 ```
 
 We see in @fig-biomassInc that biomass accumulated relatively linearly for Telemark and Trøndelag, but that for the more productive region Hedmark-Akerhus we see a plateu caused by more trees going into the 7th height category where all trees are said to be 325 cm even if they are much taller in reality.
